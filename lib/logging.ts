@@ -1,7 +1,6 @@
-var log4js = require('log4js'),
-            logger;
+import { configure, getLogger, Logger } from 'log4js';
 
-log4js.configure({
+configure({
     appenders: {
         out: {
             type: 'stdout',
@@ -14,8 +13,4 @@ log4js.configure({
     categories: { default: { appenders: ['out'], level: 'info' } }
 });
 
-logger = log4js.getLogger("VirtualBox");
-
-module.exports = logger;
-
-
+export const logging: Logger = getLogger("VirtualBox");
