@@ -1,7 +1,7 @@
 "use strict";
 
 var util = require('util');
-var virtualbox = require('../lib/virtualbox'),
+var virtualbox = require('../dist/virtualbox'),
     args = process.argv.slice(2);
 
 virtualbox.list(function(list_data, error){

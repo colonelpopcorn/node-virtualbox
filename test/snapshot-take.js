@@ -1,6 +1,6 @@
 "use strict";
 
-var virtualbox = require('../lib/virtualbox'),
+var virtualbox = require('../dist/virtualbox'),
     vm = process.argv[2],
     name = process.argv[3];
 

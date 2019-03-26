@@ -1,6 +1,6 @@
 "use strict";
 
-var virtualbox = require('../lib/virtualbox'),
+var virtualbox = require('../dist/virtualbox'),
     vm = process.argv.slice(2);
 
 virtualbox.snapshotList(vm, function(error, snapshotList, currentSnapshotUUID) {
