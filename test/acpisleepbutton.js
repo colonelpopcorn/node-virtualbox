@@ -1,10 +1,7 @@
 "use strict";
 
-var nvbox = require('../dist/virtualbox'),
+var Virtualbox = require('../dist/virtualbox').Virtualbox,
+    virtualbox = new Virtualbox(),
     args = process.argv.slice(2);
 
-virtualbox.acpisleepbutton(args[0], function(error){
-  if(error) {
-    throw error;
-  }
-});
+virtualbox.acpisleepbutton(args[0]); 
