@@ -246,7 +246,7 @@ export class Virtualbox {
     }
 
     var s;
-    var snapshots = [];
+    var snapshots = new Array<any>();
     var currentSnapshot;
     var lines = (result.stdout || "").split(require("os").EOL);
 

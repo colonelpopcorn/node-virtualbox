@@ -53,6 +53,7 @@
     "lib": "./lib"
   },
   "scripts": {
+    "build": "tsc",
     "test": "jshint ./lib ./test"
   },
   "main": "./lib/virtualbox",
