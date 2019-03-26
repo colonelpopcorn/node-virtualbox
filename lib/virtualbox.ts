@@ -19,7 +19,7 @@ export class Virtualbox {
     this.hostPlatform = process.platform;
   }
 
-  private setVboxManageBinary(): void {
+  public setVboxManageBinary(): void {
     let vBoxManageBinary;
     // Host operating system
     if (/^win/.test(this.hostPlatform)) {
@@ -43,7 +43,7 @@ export class Virtualbox {
   private async setVersion(): Promise<void> {
     const result = await exec(this.vboxManageBinary + " --version");
     // e.g., "4.3.38r106717" or "5.0.20r106931"
-    this.vboxVersion = result.stdout.split(".")[0];
+    this.vboxVersion = result[0].split(".")[0];
     logging.info("Virtualbox version detected as %s", this.vboxVersion);
   }
 
