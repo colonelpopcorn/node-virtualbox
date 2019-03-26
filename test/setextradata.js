@@ -1,6 +1,6 @@
 "use strict";
 
-var virtualbox = require('../dist/virtualbox'),
+var nvbox = require('../dist/virtualbox'),
     args = process.argv.slice(2);
 
 virtualbox.extradata.set({vm: args[0], key: args[1], value: args[2]}, function(error, value){

@@ -1,6 +1,6 @@
 "use strict";
 
-var virtualbox = require('../dist/virtualbox'),
+var nvbox = require('../dist/virtualbox'),
     args       = process.argv.slice(2),
     vm         = args[0],
     user       = args[1],
