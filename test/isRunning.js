@@ -1,15 +1,14 @@
 "use strict";
 
-var nvbox = require('../dist/virtualbox'),
+var Virtualbox = require('../dist/virtualbox').Virtualbox,
+    virtualbox = new Virtualbox(),
     vm = process.argv[2];
 
-virtualbox.isRunning(vm, function (error, isRunning) {
-  if (error) {
-    throw error;
-  }
-  if (isRunning) {
+virtualbox.isRunning(vm).then(value => {
+  if (value) {
     console.log('Virtual Machine "%s" is Running', vm);
   } else {
     console.log('Virtual Machine "%s" is Poweroff', vm);
   }
 });
+  
