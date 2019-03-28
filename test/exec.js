@@ -17,6 +17,7 @@ if (ostype === "windows") {
   path = "whoami";
 }
 
+// TODO: Refactor with a promise
 virtualbox.start(vm, function(){
   virtualbox.exec({ 'vm': vm, 'user': user, 'passwd': pass, 'path': path, 'params': [args[1] || 'http://google.com'] }, function(error, stdout){
     if(error) {

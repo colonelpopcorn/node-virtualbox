@@ -80,6 +80,7 @@ if (sequence) {
   }
 }
 
+// TODO: Refactor with a promise
 async.series(fns, function() {
   console.info('Keyboard Put Scan Code Test Complete');
 });

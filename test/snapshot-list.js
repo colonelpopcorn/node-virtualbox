@@ -4,6 +4,7 @@
 var nvbox = require('../dist/virtualbox'),
     vm = process.argv.slice(2);
 
+// TODO: Refactor with a promise
 virtualbox.snapshotList(vm, function(error, snapshotList, currentSnapshotUUID) {
   if(error) {
     throw error;
