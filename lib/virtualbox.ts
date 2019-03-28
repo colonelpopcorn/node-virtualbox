@@ -1,6 +1,10 @@
+// TODO: Add TSLint dependency and use it over JSHint
+// TODO: Add typedoc dependency, get it working
+// TODO: Add github pages publish to CI after typedoc works
 import { exec, ChildProcess } from "mz/child_process";
 import { logging } from "./logging";
 
+//TODO: Add doc comments to class
 export class Virtualbox {
   private osType: string;
   private hostPlatform: string;
@@ -12,22 +16,29 @@ export class Virtualbox {
     LINUX: "linux"
   };
 
+  // TODO: Add doc comment
+  // TODO: Write test
   constructor() {
     this.setVboxManageBinary();
     this.setVersion();
     this.hostPlatform = process.platform;
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test
   public setVboxManageBinary(): void {
     let vBoxManageBinary;
     // Host operating system
+    // TODO: Move to static class for easier testing
     if (/^win/.test(this.hostPlatform)) {
       // Path may not contain VBoxManage.exe but it provides this environment variable
       var vBoxInstallPath =
         process.env.VBOX_INSTALL_PATH || process.env.VBOX_MSI_INSTALL_PATH;
       vBoxManageBinary = '"' + vBoxInstallPath + "\\VBoxManage.exe" + '" ';
     } else if (
+      // TODO: Move to static class for easier testing
       /^darwin/.test(this.hostPlatform) ||
+      // TODO: Move to static class for easier testing
       /^linux/.test(this.hostPlatform)
     ) {
       // Mac OS X and most Linux use the same binary name, in the path
@@ -39,6 +50,8 @@ export class Virtualbox {
     this.vboxManageBinary = vBoxManageBinary;
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test?
   private async setVersion(): Promise<void> {
     const result = await exec(this.vboxManageBinary + " --version");
     // e.g., "4.3.38r106717" or "5.0.20r106931"
@@ -47,6 +60,8 @@ export class Virtualbox {
     logging.info("Virtualbox version detected as %s", this.vboxVersion);
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test?
   private async command(cmd: string): Promise<ChildProcess> {
     const result: ChildProcess = await exec(cmd);
     if (
@@ -59,19 +74,27 @@ export class Virtualbox {
     return result;
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test?
   private async vboxcontrol(cmd): Promise<ChildProcess> {
     return this.command("VBoxControl " + cmd);
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test?
   private async vboxmanage(cmd): Promise<ChildProcess> {
     return this.command(this.vboxManageBinary + cmd);
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test
   public async pause(vmname): Promise<ChildProcess> {
     logging.info('Pausing VM "%s"', vmname);
     return await this.vboxmanage('controlvm "' + vmname + '" pause');
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test
   public async list(): Promise<any> {
     logging.info("Listing VMs");
     const result = await this.vboxmanage('list "runningvms"');
@@ -93,7 +116,9 @@ export class Virtualbox {
     return _all;
   }
 
+
   private parse_listdata(raw_data): any {
+    // TODO: Move to static class for easier testing
     var _raw = raw_data.split(/\r?\n/g);
     var _data = {};
     if (_raw.length > 0) {
@@ -103,6 +128,8 @@ export class Virtualbox {
           continue;
         }
         // "centos6" {64ec13bb-5889-4352-aee9-0f1c2a17923d}
+        // TODO: Refactor and test regex, see issue #53
+        // TODO: Move to static class for easier testing
         var rePattern = /^"(.+)" \{(.+)\}$/;
         var arrMatches = _line.match(rePattern);
         // {'64ec13bb-5889-4352-aee9-0f1c2a17923d': 'centos6'}
@@ -116,16 +143,22 @@ export class Virtualbox {
     return _data;
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test
   public async reset(vmname): Promise<ChildProcess> {
     logging.info('Resetting VM "%s"', vmname);
     return await this.vboxmanage('controlvm "' + vmname + '" reset');
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test
   public async resume(vmname): Promise<ChildProcess> {
     logging.info('Resuming VM "%s"', vmname);
     return await this.vboxmanage('controlvm "' + vmname + '" resume');
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test
   public async start(vmname, use_gui): Promise<ChildProcess> {
     var start_opts = " --type ";
     if (typeof use_gui === "function") {
@@ -140,6 +173,7 @@ export class Virtualbox {
     );
     if (
       result.error &&
+      // TODO: Move to static class for easier testing
       !/VBOX_E_INVALID_OBJECT_STATE/.test(result.error.message)
     ) {
       throw new Error(result.error);
@@ -148,16 +182,22 @@ export class Virtualbox {
     }
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test
   public async stop(vmname): Promise<ChildProcess> {
     logging.info('Stopping VM "%s"', vmname);
     return await this.vboxmanage('controlvm "' + vmname + '" savestate');
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test
   public async savestate(vmname): Promise<ChildProcess> {
     logging.info('Saving State (alias to stop) VM "%s"', vmname);
     return await this.stop(vmname);
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test
   public async vmExport(vmname, output): Promise<ChildProcess> {
     logging.info('Exporting VM "%s"', vmname);
     return await this.vboxmanage(
@@ -165,21 +205,29 @@ export class Virtualbox {
     );
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test
   public async poweroff(vmname): Promise<ChildProcess> {
     logging.info('Powering off VM "%s"', vmname);
     return await this.vboxmanage('controlvm "' + vmname + '" poweroff');
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test
   public async acpipowerbutton(vmname): Promise<ChildProcess> {
     logging.info('ACPI power button VM "%s"', vmname);
     return await this.vboxmanage('controlvm "' + vmname + '" acpipowerbutton');
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test
   public async acpisleepbutton(vmname): Promise<ChildProcess> {
     logging.info('ACPI sleep button VM "%s"', vmname);
     return await this.vboxmanage('controlvm "' + vmname + '" acpisleepbutton');
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test
   public async modify(vname, properties): Promise<ChildProcess> {
     logging.info("Modifying VM %s", vname);
     var args = [vname];
@@ -208,6 +256,8 @@ export class Virtualbox {
     return await this.vboxmanage(cmd);
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test
   public async snapshotList(
     vmname
   ): Promise<{ snapshotList: any[]; currentSnapshot: any }> {
@@ -227,6 +277,7 @@ export class Virtualbox {
 
     lines.forEach(function(line) {
       // TODO: Refactor and test regex, see issue #53
+      // TODO: Move to static class for easier testing
       line
         .trim()
         .replace(
@@ -248,6 +299,8 @@ export class Virtualbox {
     return { snapshotList: snapshots, currentSnapshot };
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test
   public async snapshotTake(
     vmname,
     name,
@@ -272,12 +325,15 @@ export class Virtualbox {
     if (result.error) {
       throw new Error(result.error);
     }
+    // TODO: Move to static class for easier testing
     result.stdout.trim().replace(/UUID\: ([a-f0-9\-]+)$/, function(l, u) {
       uuid = u;
     });
     return uuid;
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test
   public async snapshotDelete(vmname, uuid): Promise<ChildProcess> {
     logging.info('Deleting snapshot "%s" for VM "%s"', uuid, vmname);
     var cmd =
@@ -285,6 +341,8 @@ export class Virtualbox {
     return await this.vboxmanage(cmd);
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test
   public async snapshotRestore(vmname, uuid): Promise<ChildProcess> {
     logging.info('Restoring snapshot "%s" for VM "%s"', uuid, vmname);
     var cmd =
@@ -292,6 +350,8 @@ export class Virtualbox {
     return await this.vboxmanage(cmd);
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test
   public async isRunning(vmname): Promise<boolean> {
     var cmd = "list runningvms";
     const result = await this.vboxmanage(cmd);
@@ -303,6 +363,8 @@ export class Virtualbox {
     }
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test
   public async keyboardputscancode(vmname, codes): Promise<ChildProcess> {
     var codeStr = codes
       .map(function(code) {
@@ -320,6 +382,8 @@ export class Virtualbox {
     );
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test
   public async vmExec(options): Promise<ChildProcess> {
     var vm = options.vm || options.name || options.vmname || options.title,
       username = options.user || options.username || "Guest",
@@ -354,6 +418,7 @@ export class Virtualbox {
 
     switch (osType) {
       case this.knownOSTypes.WINDOWS:
+        // TODO: Move to static class for easier testing
         path = path.replace(/\\/g, "\\\\");
         cmd +=
           runcmd +
@@ -404,6 +469,8 @@ export class Virtualbox {
     return await this.vboxmanage(cmd);
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test?
   private async getOSType(vmName): Promise< string > {
     if (this.osType) {
       return this.osType;
@@ -434,6 +501,8 @@ export class Virtualbox {
     return this.osType;
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test
   public async vmKill(options): Promise<ChildProcess> {
     options = options || {};
     var vm = options.vm || options.name || options.vmname || options.title,
@@ -469,6 +538,8 @@ export class Virtualbox {
     }
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test
   public async getGuestProperty(options): Promise< any > {
     var vm = options.vm || options.name || options.vmname || options.title,
       key = options.key,
@@ -486,6 +557,8 @@ export class Virtualbox {
     return value;
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test
   public async getExtraData(options): Promise< any > {
     var vm = options.vm || options.name || options.vmname || options.title,
       key = options.key,
@@ -503,6 +576,8 @@ export class Virtualbox {
     return value;
   }
 
+  // TODO: Add doc comment
+  // TODO: Write test
   public async setExtraData(options): Promise<ChildProcess> {
     var vm = options.vm || options.name || options.vmname || options.title,
       key = options.key,
