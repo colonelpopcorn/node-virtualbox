@@ -1,10 +1,7 @@
 "use strict";
 
-var nvbox = require('../dist/virtualbox'),
-    args = process.argv.slice(2);
+var Virtualbox = require('../dist/virtualbox').VirtualBox,
+    args = process.argv.slice(2),
+    virtualbox = new Virtualbox();
 
-virtualbox.poweroff(args[0], function(error){
-  if(error) {
-    throw error;
-  }
-});
+virtualbox.poweroff(args[0]).then(value => { console.log(value); }).catch(err => { console.error(err); });

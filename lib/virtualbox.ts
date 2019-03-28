@@ -5,7 +5,6 @@ export class Virtualbox {
   private osType: string;
   private hostPlatform: string;
   private vboxVersion: string;
-  private vboxManagePath: string;
   private vboxManageBinary: string;
   private knownOSTypes = {
     WINDOWS: "windows",
@@ -43,7 +42,8 @@ export class Virtualbox {
   private async setVersion(): Promise<void> {
     const result = await exec(this.vboxManageBinary + " --version");
     // e.g., "4.3.38r106717" or "5.0.20r106931"
-    this.vboxVersion = result[0].split(".")[0];
+    console.log(result);
+    this.vboxVersion = result[0];
     logging.info("Virtualbox version detected as %s", this.vboxVersion);
   }
 
@@ -54,7 +54,7 @@ export class Virtualbox {
       cmd.indexOf("pause") !== -1 &&
       cmd.indexOf("savestate") !== -1
     ) {
-      throw new Error(result);
+      throw new Error(result.error);
     }
     return result;
   }
@@ -63,21 +63,21 @@ export class Virtualbox {
     return this.command("VBoxControl " + cmd);
   }
 
-  private async vboxmanage(cmd) {
+  private async vboxmanage(cmd): Promise<ChildProcess> {
     return this.command(this.vboxManageBinary + cmd);
   }
 
-  public async pause(vmname) {
+  public async pause(vmname): Promise<ChildProcess> {
     logging.info('Pausing VM "%s"', vmname);
-    const result = await this.vboxmanage('controlvm "' + vmname + '" pause');
-    if (result.error) {
-      throw new Error(result.error);
-    }
+    return await this.vboxmanage('controlvm "' + vmname + '" pause');
   }
 
-  public async list() {
+  public async list(): Promise<any> {
     logging.info("Listing VMs");
     const result = await this.vboxmanage('list "runningvms"');
+    if (result.error) {
+      throw result.error;
+    }
     var _runningvms = this.parse_listdata(result.stdout);
     const secondResult = await this.vboxmanage('list "vms"');
     var _all = this.parse_listdata(secondResult.stdout);
@@ -90,9 +90,10 @@ export class Virtualbox {
         _all[_key].running = false;
       }
     }
+    return _all;
   }
 
-  private parse_listdata(raw_data) {
+  private parse_listdata(raw_data): any {
     var _raw = raw_data.split(/\r?\n/g);
     var _data = {};
     if (_raw.length > 0) {
@@ -115,23 +116,17 @@ export class Virtualbox {
     return _data;
   }
 
-  public async reset(vmname) {
+  public async reset(vmname): Promise<ChildProcess> {
     logging.info('Resetting VM "%s"', vmname);
-    const result = await this.vboxmanage('controlvm "' + vmname + '" reset');
-    if (result.error) {
-      throw new Error(result.error);
-    }
+    return await this.vboxmanage('controlvm "' + vmname + '" reset');
   }
 
-  public async resume(vmname, callback) {
+  public async resume(vmname): Promise<ChildProcess> {
     logging.info('Resuming VM "%s"', vmname);
-    const result = await this.vboxmanage('controlvm "' + vmname + '" resume');
-    if (result.error) {
-      throw new Error(result.error);
-    }
+    return await this.vboxmanage('controlvm "' + vmname + '" resume');
   }
 
-  public async start(vmname, use_gui) {
+  public async start(vmname, use_gui): Promise<ChildProcess> {
     var start_opts = " --type ";
     if (typeof use_gui === "function") {
       use_gui = false;
@@ -148,63 +143,44 @@ export class Virtualbox {
       !/VBOX_E_INVALID_OBJECT_STATE/.test(result.error.message)
     ) {
       throw new Error(result.error);
+    } else {
+      return result;
     }
   }
 
-  public async stop(vmname) {
+  public async stop(vmname): Promise<ChildProcess> {
     logging.info('Stopping VM "%s"', vmname);
-    const result = await this.vboxmanage(
-      'controlvm "' + vmname + '" savestate'
-    );
-    if (result.error) {
-      throw new Error(result.error);
-    }
+    return await this.vboxmanage('controlvm "' + vmname + '" savestate');
   }
 
-  public async savestate(vmname) {
+  public async savestate(vmname): Promise<ChildProcess> {
     logging.info('Saving State (alias to stop) VM "%s"', vmname);
-    await this.stop(vmname);
+    return await this.stop(vmname);
   }
 
-  public async vmExport(vmname, output) {
+  public async vmExport(vmname, output): Promise<ChildProcess> {
     logging.info('Exporting VM "%s"', vmname);
-    const result = await this.vboxmanage(
+    return await this.vboxmanage(
       'export "' + vmname + '" --output "' + output + '"'
     );
-    if (result.error) {
-      throw new Error(result.error);
-    }
   }
 
-  public async poweroff(vmname) {
+  public async poweroff(vmname): Promise<ChildProcess> {
     logging.info('Powering off VM "%s"', vmname);
-    const result = await this.vboxmanage('controlvm "' + vmname + '" poweroff');
-    if (result.error) {
-      throw new Error(result.error);
-    }
+    return await this.vboxmanage('controlvm "' + vmname + '" poweroff');
   }
 
-  public async acpipowerbutton(vmname) {
+  public async acpipowerbutton(vmname): Promise<ChildProcess> {
     logging.info('ACPI power button VM "%s"', vmname);
-    const result = await this.vboxmanage(
-      'controlvm "' + vmname + '" acpipowerbutton'
-    );
-    if (result.error) {
-      throw new Error(result.error);
-    }
+    return await this.vboxmanage('controlvm "' + vmname + '" acpipowerbutton');
   }
 
-  public async acpisleepbutton(vmname) {
+  public async acpisleepbutton(vmname): Promise<ChildProcess> {
     logging.info('ACPI sleep button VM "%s"', vmname);
-    const result = await this.vboxmanage(
-      'controlvm "' + vmname + '" acpisleepbutton'
-    );
-    if (result.error) {
-      throw new Error(result.error);
-    }
+    return await this.vboxmanage('controlvm "' + vmname + '" acpisleepbutton');
   }
 
-  public async modify(vname, properties, callback) {
+  public async modify(vname, properties): Promise<ChildProcess> {
     logging.info("Modifying VM %s", vname);
     var args = [vname];
 
@@ -229,13 +205,12 @@ export class Virtualbox {
         })
         .join(" ");
 
-    const result = await this.vboxmanage(cmd);
-    if (result.error) {
-      throw new Error(result.error);
-    }
+    return await this.vboxmanage(cmd);
   }
 
-  public async snapshotList(vmname, callback) {
+  public async snapshotList(
+    vmname
+  ): Promise<{ snapshotList: any[]; currentSnapshot: any }> {
     logging.info('Listing snapshots for VM "%s"', vmname);
     const result = await this.vboxmanage(
       'snapshot "' + vmname + '" list --machinereadable'
@@ -270,14 +245,15 @@ export class Virtualbox {
           }
         );
     });
+    return { snapshotList: snapshots, currentSnapshot };
   }
 
   public async snapshotTake(
     vmname,
     name,
-    /*optional*/ description = undefined,
+    description = undefined,
     live = false
-  ) {
+  ): Promise< string > {
     logging.info('Taking snapshot for VM "%s"', vmname);
 
     var cmd =
@@ -302,24 +278,18 @@ export class Virtualbox {
     return uuid;
   }
 
-  public async snapshotDelete(vmname, uuid) {
+  public async snapshotDelete(vmname, uuid): Promise<ChildProcess> {
     logging.info('Deleting snapshot "%s" for VM "%s"', uuid, vmname);
     var cmd =
       "snapshot " + JSON.stringify(vmname) + " delete " + JSON.stringify(uuid);
-    const result = await this.vboxmanage(cmd);
-    if (result.error) {
-      throw new Error(result.error);
-    }
+    return await this.vboxmanage(cmd);
   }
 
-  public async snapshotRestore(vmname, uuid) {
+  public async snapshotRestore(vmname, uuid): Promise<ChildProcess> {
     logging.info('Restoring snapshot "%s" for VM "%s"', uuid, vmname);
     var cmd =
       "snapshot " + JSON.stringify(vmname) + " restore " + JSON.stringify(uuid);
-    const result = await this.vboxmanage(cmd);
-    if (result.error) {
-      throw new Error(result.error);
-    }
+    return await this.vboxmanage(cmd);
   }
 
   public async isRunning(vmname): Promise<boolean> {
@@ -333,7 +303,7 @@ export class Virtualbox {
     }
   }
 
-  public async keyboardputscancode(vmname, codes) {
+  public async keyboardputscancode(vmname, codes): Promise<ChildProcess> {
     var codeStr = codes
       .map(function(code) {
         var s = code.toString(16);
@@ -345,17 +315,12 @@ export class Virtualbox {
       })
       .join(" ");
     logging.info('Sending VM "%s" keyboard scan codes "%s"', vmname, codeStr);
-    const result = await this.vboxmanage(
+    return await this.vboxmanage(
       'controlvm "' + vmname + '" keyboardputscancode ' + codeStr
     );
-    if (result.error) {
-      throw new Error(result.error);
-    } else {
-      return result.stdout;
-    }
   }
 
-  public async vmExec(options) {
+  public async vmExec(options): Promise<ChildProcess> {
     var vm = options.vm || options.name || options.vmname || options.title,
       username = options.user || options.username || "Guest",
       password = options.pass || options.passwd || options.password,
@@ -439,7 +404,7 @@ export class Virtualbox {
     return await this.vboxmanage(cmd);
   }
 
-  private async getOSType(vmName) {
+  private async getOSType(vmName): Promise< string > {
     if (this.osType) {
       return this.osType;
     }
@@ -469,7 +434,7 @@ export class Virtualbox {
     return this.osType;
   }
 
-  public async vmKill(options, callback) {
+  public async vmKill(options): Promise<ChildProcess> {
     options = options || {};
     var vm = options.vm || options.name || options.vmname || options.title,
       path =
@@ -504,7 +469,7 @@ export class Virtualbox {
     }
   }
 
-  public async getGuestProperty(options) {
+  public async getGuestProperty(options): Promise< any > {
     var vm = options.vm || options.name || options.vmname || options.title,
       key = options.key,
       value = options.defaultValue || options.value;
@@ -514,15 +479,14 @@ export class Virtualbox {
     if (result.error) {
       throw result.error;
     }
-    var value = result.stdout.substr(result.stdout.indexOf(':') + 1).trim();
-    if (value === 'No value set!') {
+    var value = result.stdout.substr(result.stdout.indexOf(":") + 1).trim();
+    if (value === "No value set!") {
       value = undefined;
     }
     return value;
   }
-  
-  //TODO: Add extra data get and set.
-  public async getExtraData(options) {
+
+  public async getExtraData(options): Promise< any > {
     var vm = options.vm || options.name || options.vmname || options.title,
       key = options.key,
       value = options.defaultValue || options.value;
@@ -532,14 +496,14 @@ export class Virtualbox {
     if (result.error) {
       throw result.error;
     }
-    var value = result.stdout.substr(result.stdout.indexOf(':') + 1).trim();
-    if (value === 'No value set!') {
+    var value = result.stdout.substr(result.stdout.indexOf(":") + 1).trim();
+    if (value === "No value set!") {
       value = undefined;
     }
     return value;
   }
 
-  public async setExtraData(options) {
+  public async setExtraData(options): Promise<ChildProcess> {
     var vm = options.vm || options.name || options.vmname || options.title,
       key = options.key,
       value = options.defaultValue || options.value;
@@ -548,4 +512,3 @@ export class Virtualbox {
     return await this.vboxmanage(cmd);
   }
 }
-
