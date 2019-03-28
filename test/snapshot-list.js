@@ -1,5 +1,6 @@
 "use strict";
 
+//TODO: Move to mocha for automation
 var nvbox = require('../dist/virtualbox'),
     vm = process.argv.slice(2);
 

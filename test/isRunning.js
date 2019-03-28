@@ -1,5 +1,6 @@
 "use strict";
 
+//TODO: Move to mocha for automation
 var Virtualbox = require('../dist/virtualbox').Virtualbox,
     virtualbox = new Virtualbox(),
     vm = process.argv[2];

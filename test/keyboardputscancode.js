@@ -1,5 +1,6 @@
 'use strict';
 
+//TODO: Move to mocha for automation
 var nvbox = require('../dist/virtualbox'),
     async      = require('async'),
     args       = process.argv.slice(2),
