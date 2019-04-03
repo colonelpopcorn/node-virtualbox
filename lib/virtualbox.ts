@@ -1,8 +1,10 @@
 // TODO: Add TSLint dependency and use it over JSHint
 // TODO: Add typedoc dependency, get it working
 // TODO: Add github pages publish to CI after typedoc works
+// TODO: Add automatic testing of regex patterns.
 import { exec, ChildProcess } from "mz/child_process";
 import { logging } from "./logging";
+import { REGEX } from "./regex";
 
 //TODO: Add doc comments to class
 export class Virtualbox {
@@ -29,17 +31,14 @@ export class Virtualbox {
   public setVboxManageBinary(): void {
     let vBoxManageBinary;
     // Host operating system
-    // TODO: Move to static class for easier testing
-    if (/^win/.test(this.hostPlatform)) {
+    if (REGEX.WINDOWS.test(this.hostPlatform)) {
       // Path may not contain VBoxManage.exe but it provides this environment variable
       var vBoxInstallPath =
         process.env.VBOX_INSTALL_PATH || process.env.VBOX_MSI_INSTALL_PATH;
       vBoxManageBinary = '"' + vBoxInstallPath + "\\VBoxManage.exe" + '" ';
     } else if (
-      // TODO: Move to static class for easier testing
-      /^darwin/.test(this.hostPlatform) ||
-      // TODO: Move to static class for easier testing
-      /^linux/.test(this.hostPlatform)
+      REGEX.MAC_OS.test(this.hostPlatform) ||
+      REGEX.LINUX.test(this.hostPlatform)
     ) {
       // Mac OS X and most Linux use the same binary name, in the path
       vBoxManageBinary = "vboxmanage ";
@@ -118,8 +117,7 @@ export class Virtualbox {
 
 
   private parse_listdata(raw_data): any {
-    // TODO: Move to static class for easier testing
-    var _raw = raw_data.split(/\r?\n/g);
+    var _raw = raw_data.split(REGEX.CARRIAGE_RETURN_LINE_FEED);
     var _data = {};
     if (_raw.length > 0) {
       for (var _i = 0; _i < _raw.length; _i += 1) {
@@ -127,10 +125,8 @@ export class Virtualbox {
         if (_line === "") {
           continue;
         }
-        // "centos6" {64ec13bb-5889-4352-aee9-0f1c2a17923d}
-        // TODO: Refactor and test regex, see issue #53
-        // TODO: Move to static class for easier testing
-        var rePattern = /^"(.+)" \{(.+)\}$/;
+        
+        var rePattern = REGEX.VBOX_OS_GUID;
         var arrMatches = _line.match(rePattern);
         // {'64ec13bb-5889-4352-aee9-0f1c2a17923d': 'centos6'}
         if (arrMatches && arrMatches.length === 3) {
@@ -173,8 +169,7 @@ export class Virtualbox {
     );
     if (
       result.error &&
-      // TODO: Move to static class for easier testing
-      !/VBOX_E_INVALID_OBJECT_STATE/.test(result.error.message)
+      !(REGEX.VBOX_E_INVALID_OBJECT_STATE.test(result.error.message))
     ) {
       throw new Error(result.error);
     } else {
@@ -276,12 +271,10 @@ export class Virtualbox {
     var lines = (result.stdout || "").split(require("os").EOL);
 
     lines.forEach(function(line) {
-      // TODO: Refactor and test regex, see issue #53
-      // TODO: Move to static class for easier testing
       line
         .trim()
         .replace(
-          /^(CurrentSnapshotUUID|SnapshotName|SnapshotUUID).*\="(.*)"$/,
+          REGEX.SNAPSHOT_PARSE,
           function(l, k, v) {
             if (k === "CurrentSnapshotUUID") {
               currentSnapshot = v;
@@ -325,8 +318,7 @@ export class Virtualbox {
     if (result.error) {
       throw new Error(result.error);
     }
-    // TODO: Move to static class for easier testing
-    result.stdout.trim().replace(/UUID\: ([a-f0-9\-]+)$/, function(l, u) {
+    result.stdout.trim().replace(REGEX.UUID_PARSE, function(l, u) {
       uuid = u;
     });
     return uuid;
@@ -418,8 +410,7 @@ export class Virtualbox {
 
     switch (osType) {
       case this.knownOSTypes.WINDOWS:
-        // TODO: Move to static class for easier testing
-        path = path.replace(/\\/g, "\\\\");
+        path = path.replace(REGEX.DOUBLE_BACKSLASH, "\\\\");
         cmd +=
           runcmd +
           ' "cmd.exe" --username ' +
