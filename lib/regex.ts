@@ -1,3 +1,4 @@
+'use strict';
 export const REGEX = {
   WINDOWS: /^win/,
   MAC_OS: /^darwin/,
