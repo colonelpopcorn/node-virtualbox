@@ -114,7 +114,7 @@ export class Virtualbox {
     }
     var _runningvms = this.parse_listdata(result[0]);
     const secondResult = await this.vboxmanage('list "vms"');
-    var _all = this.parse_listdata(secondResult.stdout);
+    var _all = this.parse_listdata(secondResult[0]);
     var _keys = Object.keys(_all);
     for (var _i = 0; _i < _keys.length; _i += 1) {
       var _key = _keys[_i];
@@ -138,12 +138,11 @@ export class Virtualbox {
           continue;
         }
         
-        var rePattern = REGEX.VBOX_OS_GUID;
-        var arrMatches = _line.match(rePattern);
+        var arrMatches = _line.split(" ");
         // {'64ec13bb-5889-4352-aee9-0f1c2a17923d': 'centos6'}
-        if (arrMatches && arrMatches.length === 3) {
-          _data[arrMatches[2].toString()] = {
-            name: arrMatches[1].toString()
+        if (arrMatches && arrMatches.length === 2) {
+          _data[arrMatches[1].toString()] = {
+            name: arrMatches[0].toString()
           };
         }
       }
@@ -287,7 +286,6 @@ export class Virtualbox {
     logging.debug(result);
 
     if (result[1] !== '') {
-      console.log(result);
       throw new Error(result[1]);
     }
 
