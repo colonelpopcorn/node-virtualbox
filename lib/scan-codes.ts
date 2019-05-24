@@ -1,7 +1,6 @@
 'use strict';
 export class ScanCodes {
   codes = {
-
     'ESCAPE'          : [0x01],
     'NUMBER_1'        : [0x02],
     'NUMBER_2'        : [0x03],
