@@ -295,27 +295,20 @@ export class Virtualbox {
     var snapshots = new Array<any>();
     var currentSnapshot;
     var lines = (result[0] || "").split(require("os").EOL);
+    let newObj = {};
 
     lines.forEach(function(line) {
       line
         .trim()
-        .replace(
-          REGEX.SNAPSHOT_PARSE,
-          function(l, k, v) {
-            if (k === "CurrentSnapshotUUID") {
-              currentSnapshot = v;
-            } else if (k === "SnapshotName") {
-              s = {
-                name: v
-              };
-              snapshots.push(s);
-            } else {
-              s.uuid = v;
-            }
+        .split("=")
+        .forEach(function (l, k, v) {
+          const key = `${v[0]}`;
+          if ((k+1)%2 === 0) {
+            newObj[key] = v[1].replace(/\"/g, "");
           }
-        );
+        });
     });
-    return { snapshotList: snapshots, currentSnapshot };
+    return { snapshotList: [newObj], currentSnapshot: newObj["CurrentSnapshotUUID"] };
   }
 
   // TODO: Add doc comment

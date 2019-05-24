@@ -7,7 +7,7 @@ export const REGEX = {
   // "centos6" {64ec13bb-5889-4352-aee9-0f1c2a17923d}
   VBOX_OS_GUID: /^"(.+)" \{(.+)\}$/,
   VBOX_E_INVALID_OBJECT_STATE: /VBOX_E_INVALID_OBJECT_STATE/,
-  SNAPSHOT_PARSE :/^(CurrentSnapshotUUID|SnapshotName|SnapshotUUID).*\="(.*)"$/,
+  ESCAPED_QUOTE: /\"/,
   UUID_PARSE: /UUID\: ([a-f0-9\-]+)$/,
   DOUBLE_BACKSLASH: /\\/g
 };
