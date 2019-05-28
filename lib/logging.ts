@@ -1,4 +1,3 @@
-'use strict';
 import { configure, getLogger, Logger } from 'log4js';
 
 configure({

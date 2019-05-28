@@ -1,4 +1,3 @@
-'use strict';
 // TODO: Add TSLint dependency and use it over JSHint
 // TODO: Add typedoc dependency, get it working
 // TODO: Add github pages publish to CI after typedoc works
