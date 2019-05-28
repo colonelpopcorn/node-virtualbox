@@ -5,4 +5,8 @@ var Virtualbox = require('../dist/virtualbox').Virtualbox,
     virtualbox = new Virtualbox(),
     args = process.argv.slice(2);
 
-virtualbox.acpisleepbutton(args[0]); 
+virtualbox.acpisleepbutton(args[0]).catch(error => {
+  if (error) {
+    throw error;
+  }
+}); 

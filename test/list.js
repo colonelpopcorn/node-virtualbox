@@ -2,11 +2,12 @@
 
 //TODO: Move to mocha for automation
 var util = require('util');
-var nvbox = require('../dist/virtualbox'),
+var Virtualbox = require('../dist/lib/virtualbox').Virtualbox,
+    virtualbox = new Virtualbox(),
     args = process.argv.slice(2);
 
 // TODO: Refactor with a promise
-virtualbox.list(function(list_data, error){
+virtualbox.list().then(function(list_data, error){
   if(error) {
     throw error;
   }

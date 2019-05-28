@@ -1,7 +1,8 @@
 "use strict";
 
 //TODO: Move to mocha for automation
-var nvbox = require('../dist/virtualbox'),
+var Virtualbox = require('../dist/virtualbox'),
+    virtualbox = new Virtualbox(),
     args       = process.argv.slice(2),
     vm         = args[0],
     user       = args[1],
@@ -10,16 +11,16 @@ var nvbox = require('../dist/virtualbox'),
     path;
 
 if (ostype === "windows") {
-  path = "C:\\Program Files\\Internet Explorer\\iexplore.exe";
+  path = "ping.exe";
 } else if (ostype === "mac") {
-  path = "Safari.app";
+  path = "ping";
 } else {
-  path = "whoami";
+  path = "ping";
 }
 
 // TODO: Refactor with a promise
 virtualbox.start(vm, function(){
-  virtualbox.exec({ 'vm': vm, 'user': user, 'passwd': pass, 'path': path, 'params': [args[1] || 'http://google.com'] }, function(error, stdout){
+  virtualbox.exec({ 'vm': vm, 'user': user, 'passwd': pass, 'path': path, 'params': [args[1] || 'https://google.com'] }, function(error, stdout){
     if(error) {
       throw error;
     }

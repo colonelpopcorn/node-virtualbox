@@ -1,7 +1,8 @@
 "use strict";
 
 //TODO: Move to mocha for automation
-var nvbox = require('../dist/virtualbox'),
+var Virtualbox = require('../dist/lib/virtualbox').Virtualbox,
+    virtualbox = new Virtualbox(),
     args = process.argv.slice(2);
 
 // TODO: Refactor with a promise

@@ -13,6 +13,13 @@ export class Virtualbox {
   private hostPlatform: string;
   private vboxVersion: string;
   private vboxManageBinary: string;
+  private _executor = exec;
+  get executor(): Function {
+    return this._executor
+  }
+  set executor(executor: Function) {
+    this._executor = executor;
+  }
   private knownOSTypes = {
     WINDOWS: "windows",
     MAC: "mac",
@@ -56,7 +63,7 @@ export class Virtualbox {
   // TODO: Write test
   // TODO: Add catch block?
   private async setVersion(): Promise<void> {
-    const result = await exec(this.vboxManageBinary + " --version");
+    const result = await this._executor(this.vboxManageBinary + " --version");
     // e.g., "4.3.38r106717" or "5.0.20r106931"
     this.vboxVersion = result[0];
     logging.info("Virtualbox version detected as %s", this.vboxVersion);
@@ -66,7 +73,7 @@ export class Virtualbox {
   // TODO: Write test
   // TODO: Add catch block?
   private async command(cmd: string): Promise<ChildProcess> {
-    const result: ChildProcess = await exec(cmd);
+    const result: ChildProcess = await this._executor(cmd);
     if (
       result.stderr &&
       cmd.indexOf("pause") !== -1 &&
@@ -493,7 +500,7 @@ export class Virtualbox {
 
     let result;
     try {
-      result = await exec(
+      result = await this._executor(
         this.vboxManageBinary + 'showvminfo -machinereadable "' + vmName + '"'
       );
     } catch (e) {
