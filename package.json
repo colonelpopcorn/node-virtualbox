@@ -54,6 +54,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "document": "typedoc --out docs lib --theme minimal",
     "lint": "jshint ./lib ./test",
     "test": "mocha -r ts-node/register test/*.spec.ts"
   },
@@ -67,15 +68,19 @@
     "mz": "^2.7.0"
   },
   "devDependencies": {
+    "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.6",
     "@types/node": "^11.11.6",
     "@types/sinon": "^7.0.12",
     "async": "^2.1.4",
+    "chai": "^4.2.0",
     "jshint": "^2.9.6",
     "mocha": "^6.1.4",
     "nodeunit": "^0.11.3",
     "sinon": "^7.3.2",
     "ts-node": "^8.2.0",
+    "tslint": "^5.17.0",
+    "typedoc": "^0.14.2",
     "typescript": "^3.3.4000"
   },
   "engines": {
