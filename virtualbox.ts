@@ -578,35 +578,35 @@ export class Virtualbox {
   public async vmKill(options): Promise<IChildProcessResult> {
     let result;
     options = options || {};
-    const vm = options.vm || options.name || options.vmname || options.title,
-      path =
+    const vm = options.vm || options.name || options.vmname || options.title;
+    const path =
         options.path ||
         options.cmd ||
         options.command ||
         options.exec ||
         options.execute ||
-        options.run,
-      image_name = options.image_name || path,
-      cmd = 'guestcontrol "' + vm + '" process kill';
+        options.run;
+    const imageName = options.image_name || path;
+    const cmd = 'guestcontrol "' + vm + '" process kill';
 
     await this.getOSType(vm);
     switch (this.osType) {
       case this.knownOSTypes.WINDOWS:
         result = await this.vmExec({
-          vm,
-          user: options.user,
+          params: imageName,
           password: options.password,
           path: "C:\\Windows\\System32\\taskkill.exe /im ",
-          params: image_name,
+          user: options.user,
+          vm,
         });
       case this.knownOSTypes.MAC:
       case this.knownOSTypes.LINUX:
         result = await this.vmExec({
-          vm,
-          user: options.user,
+          params: imageName,
           password: options.password,
           path: "sudo killall ",
-          params: image_name,
+          user: options.user,
+          vm,
         });
     }
     return result;
@@ -616,9 +616,9 @@ export class Virtualbox {
   // TODO: Write test
   // TODO: Add catch block
   public async getGuestProperty(options): Promise< any > {
-    const vm = options.vm || options.name || options.vmname || options.title,
-      key = options.key,
-      value = options.defaultValue || options.value;
+    const vm = options.vm || options.name || options.vmname || options.title;
+    const key = options.key;
+    const value = options.defaultValue || options.value;
     await this.getOSType(vm);
     const cmd = 'guestproperty get "' + vm + '" ' + key;
     const result = await this.vboxmanage(cmd);
@@ -636,16 +636,16 @@ export class Virtualbox {
   // TODO: Write test
   // TODO: Add catch block
   public async getExtraData(options): Promise< any > {
-    const vm = options.vm || options.name || options.vmname || options.title,
-      key = options.key,
-      value = options.defaultValue || options.value;
+    const vm = options.vm || options.name || options.vmname || options.title;
+    const key = options.key;
+    let value = options.defaultValue || options.value;
 
     const cmd = 'getextradata "' + vm + '" "' + key + '"';
     const result = await this.vboxmanage(cmd);
     if (result[1]) {
       throw result[1];
     }
-    let value = result[0].substr(result[0].indexOf(":") + 1).trim();
+    value = result[0].substr(result[0].indexOf(":") + 1).trim();
     if (value === "No value set!") {
       value = undefined;
     }
@@ -656,17 +656,16 @@ export class Virtualbox {
   // TODO: Write test
   // TODO: Add catch block
   public async setExtraData(options): Promise<IChildProcessResult> {
-    const vm = options.vm || options.name || options.vmname || options.title,
-      key = options.key,
-      value = options.defaultValue || options.value;
+    const vm = options.vm || options.name || options.vmname || options.title;
+    const key = options.key;
+    const value = options.defaultValue || options.value;
 
     const cmd = 'setextradata "' + vm + '" "' + key + '" "' + value + '"';
     return await this.vboxmanage(cmd);
   }
 
   public getBreakCode(key) {
-    let makeCode = this.codes[key],
-      breakCode;
+    const makeCode = this.codes[key];
     if (makeCode === undefined) {
       throw new Error("Undefined key: " + key);
     }
@@ -718,30 +717,28 @@ export class Virtualbox {
   // TODO: Add catch block?
   private async vboxmanage(cmd): Promise<IChildProcessResult> {
     const result = await this.command(this.vboxManageBinary + cmd);
-    this.Logging.debug;
     return result;
   }
 
-  private parse_listdata(raw_data): any {
-    const _raw = raw_data.split(this.REGEX.CARRIAGE_RETURN_LINE_FEED);
-    const _data = {};
-    if (_raw.length > 0) {
-      for (let _i = 0; _i < _raw.length; _i += 1) {
-        const _line = _raw[_i];
-        if (_line === "") {
+  private parse_listdata(rawData): any {
+    const raw = rawData.split(this.REGEX.CARRIAGE_RETURN_LINE_FEED);
+    const data = {};
+    if (raw.length > 0) {
+      for (const item of raw) {
+        if (item === "") {
           continue;
         }
 
-        const arrMatches = _line.split(" ");
+        const arrMatches = item.split(" ");
         // {'64ec13bb-5889-4352-aee9-0f1c2a17923d': 'centos6'}
         if (arrMatches && arrMatches.length === 2) {
-          _data[arrMatches[1].toString()] = {
+          data[arrMatches[1].toString()] = {
             name: arrMatches[0].toString(),
           };
         }
       }
     }
-    return _data;
+    return data;
   }
 
   // TODO: Add doc comment
