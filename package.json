@@ -60,7 +60,7 @@
     "ci": "npm run build && npm run lint && npm run test && npm run document",
     "build": "tsc",
     "document": "typedoc --out docs lib --theme minimal",
-    "lint": "jshint ./lib ./test",
+    "lint": "tslint lib/**.ts",
     "test": "mocha -r ts-node/register test/*.spec.ts"
   },
   "main": "./lib/virtualbox",
