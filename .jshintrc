@@ -1,4 +1,5 @@
 {
+  //TODO: Move these settings to tslint.
   // Settings
   "passfail"      : false,  // Stop on first error.
   "maxerr"        : 100,    // Maximum errors before stopping.
