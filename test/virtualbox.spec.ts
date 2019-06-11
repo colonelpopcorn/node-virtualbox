@@ -43,7 +43,7 @@ describe("Virtualbox", () => {
     });
   });
   describe.skip("#vmExec", () => {
-    it("should ping google", (done) => {
+    it("should ping google", () => {
       const virtualbox = new Virtualbox();
       virtualbox.Executor = stub().resolves(testData.EXEC_OUTPUT.stdOut);
       virtualbox.vmExec({
