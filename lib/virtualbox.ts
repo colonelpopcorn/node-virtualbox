@@ -1,11 +1,13 @@
-
 // TODO: Add github pages publish to CI after typedoc works
 // TODO: Add automatic testing of regex patterns.
 import { exec, ExecException } from "child_process";
 import { configure, getLogger, Logger } from "log4js";
 
-// TODO: Add doc comments to class
-declare interface IChildProcessResult { error: ExecException | null; stdout: string; stderr: string; }
+/**
+ * IChildProcessResult
+ * An interface to capture execution results from the child_process node library.
+ */
+declare interface IChildProcessResult { error?: ExecException | null; stdout: string; stderr?: string; }
 /**
  * Virtualbox
  * A node wrapper around the vboxmanage binary.
@@ -170,9 +172,15 @@ export class Virtualbox {
 
     if (executor === undefined) {
       this.Executor = (command: string): Promise<IChildProcessResult> => {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
           exec(command, (error, stdout, stderr) => {
-            resolve({ error, stdout, stderr });
+            if (error) {
+              reject(error);
+            } else if (stderr) {
+              reject(stderr);
+            } else {
+              resolve({ stdout });
+            }
           });
         });
       };
@@ -184,7 +192,9 @@ export class Virtualbox {
     this.hostPlatform = process.platform;
   }
 
-  // TODO: Add doc comment
+  /**
+   * Sets the binary location
+   */
   // TODO: Write test
   // TODO: Add catch block
   public setVboxManageBinary(): void {
@@ -208,7 +218,10 @@ export class Virtualbox {
     this.vboxManageBinary = vBoxManageBinary;
   }
 
-  // TODO: Add doc comment
+  /**
+   * Pause a vm.
+   * @param vmname VM name or uuid
+   */
   // TODO: Write test
   // TODO: Add catch block
   public async pause(vmname): Promise<IChildProcessResult> {
@@ -216,7 +229,9 @@ export class Virtualbox {
     return await this.vboxmanage('controlvm "' + vmname + '" pause');
   }
 
-  // TODO: Add doc comment
+  /**
+   * Get a list of VMs on the current system.
+   */
   // TODO: Write test
   // TODO: Add catch block
   public async list(): Promise<any> {
@@ -241,7 +256,10 @@ export class Virtualbox {
     return all;
   }
 
-  // TODO: Add doc comment
+  /**
+   * Reset a vm
+   * @param vmname VM name or uuid
+   */
   // TODO: Write test
   // TODO: Add catch block
   public async reset(vmname): Promise<IChildProcessResult> {
@@ -249,7 +267,10 @@ export class Virtualbox {
     return await this.vboxmanage('controlvm "' + vmname + '" reset');
   }
 
-  // TODO: Add doc comment
+  /**
+   * Resume a paused VM
+   * @param vmname VM name or uuid
+   */
   // TODO: Write test
   // TODO: Add catch block
   public async resume(vmname): Promise<IChildProcessResult> {
@@ -257,10 +278,14 @@ export class Virtualbox {
     return await this.vboxmanage('controlvm "' + vmname + '" resume');
   }
 
-  // TODO: Add doc comment
+  /**
+   * Start a stopped VM
+   * @param vmname VM name or uuid
+   * @param useGui Whether or not to start machine with a GUI
+   */
   // TODO: Write test
   // TODO: Add catch block
-  public async start(vmname, useGui): Promise<IChildProcessResult> {
+  public async start(vmname: string, useGui: boolean): Promise<IChildProcessResult> {
     let startOpts = " --type ";
     if (typeof useGui === "function") {
       useGui = false;
@@ -282,7 +307,10 @@ export class Virtualbox {
     }
   }
 
-  // TODO: Add doc comment
+  /**
+   * Suspend a VM
+   * @param vmname VM name or uuid
+   */
   // TODO: Write test
   // TODO: Add catch block
   public async stop(vmname): Promise<IChildProcessResult> {
@@ -298,46 +326,66 @@ export class Virtualbox {
     return await this.stop(vmname);
   }
 
-  // TODO: Add doc comment
+  /**
+   * Export a VM to a file.
+   * @param vmname VM name or uuid
+   * @param output Full path for export filename. Extension should be one of these:
+   * - ovf
+   * - ova
+   * - tar.gz
+   */
   // TODO: Write test
   // TODO: Add catch block
-  public async vmExport(vmname, output): Promise<IChildProcessResult> {
+  public async vmExport(vmname: string, output: string): Promise<IChildProcessResult> {
     this.Logging.info('Exporting VM "%s"', vmname);
     return await this.vboxmanage(
       'export "' + vmname + '" --output "' + output + '"',
     );
   }
 
-  // TODO: Add doc comment
+  /**
+   * Hard shutdown the VM
+   * @param vmname VM name or uuid
+   */
   // TODO: Write test
   // TODO: Add catch block
-  public async poweroff(vmname): Promise<IChildProcessResult> {
+  public async poweroff(vmname: string): Promise<IChildProcessResult> {
     this.Logging.info('Powering off VM "%s"', vmname);
     return await this.vboxmanage('controlvm "' + vmname + '" poweroff');
   }
 
-  // TODO: Add doc comment
+  /**
+   * Send a "power button pressed" signal to the VM
+   * @param vmname VM name or uuid
+   */
   // TODO: Write test
   // TODO: Add catch block
-  public async acpipowerbutton(vmname): Promise<IChildProcessResult> {
+  public async acpipowerbutton(vmname: string): Promise<IChildProcessResult> {
     this.Logging.info('ACPI power button VM "%s"', vmname);
     const result = await this.vboxmanage('controlvm "' + vmname + '" acpipowerbutton');
     this.Logging.debug(result);
     return result;
   }
 
-  // TODO: Add doc comment
+  /**
+   * Send a "sleep button pressed" signal to the VM
+   * @param vmname VM name or uuid
+   */
   // TODO: Write test
   // TODO: Add catch block
-  public async acpisleepbutton(vmname): Promise<IChildProcessResult> {
+  public async acpisleepbutton(vmname: string): Promise<IChildProcessResult> {
     this.Logging.info('ACPI sleep button VM "%s"', vmname);
     return await this.vboxmanage(`controlvm ${vmname} acpisleepbutton`);
   }
 
-  // TODO: Add doc comment
+  /**
+   * Modify a VM
+   * @param vname VM name or uuid
+   * @param properties Virtualbox properties object
+   */
   // TODO: Write test
   // TODO: Add catch block
-  public async modify(vname, properties): Promise<IChildProcessResult> {
+  public async modify(vname: string, properties): Promise<IChildProcessResult> {
     this.Logging.info("Modifying VM %s", vname);
     const args = [vname];
 
@@ -365,12 +413,13 @@ export class Virtualbox {
     return await this.vboxmanage(cmd);
   }
 
-  // TODO: Add doc comment
+  /**
+   * List snapshots for a VM
+   * @param vmname VM name or uuid
+   */
   // TODO: Write test
   // TODO: Add catch block
-  public async snapshotList(
-    vmname,
-  ): Promise<{ snapshotList: any[]; currentSnapshot: any }> {
+  public async snapshotList(vmname: string): Promise<{ snapshotList: any[]; currentSnapshot: any }> {
     this.Logging.info('Listing snapshots for VM "%s"', vmname);
     const result = await this.vboxmanage(
       'snapshot "' + vmname + '" list --machinereadable',
@@ -400,12 +449,18 @@ export class Virtualbox {
     return { snapshotList: [newObj], currentSnapshot: newObj.CurrentSnapshotUUID };
   }
 
-  // TODO: Add doc comment
+  /**
+   * Take a snapshot for a VM
+   * @param vmname VM name or uuid
+   * @param name Snapshot name
+   * @param description Description object
+   * @param live Should be a live snapshot
+   */
   // TODO: Write test
   // TODO: Add catch block
   public async snapshotTake(
-    vmname,
-    name,
+    vmname: string,
+    name: string,
     description?,
     live = false,
   ): Promise< string > {
@@ -433,27 +488,38 @@ export class Virtualbox {
     return uuid;
   }
 
-  // TODO: Add doc comment
+  /**
+   * Delete a snapshot for a VM
+   * @param vmname VM name or uuid
+   * @param uuid Snapshot uuid to delete
+   */
   // TODO: Write test
   // TODO: Add catch block
-  public async snapshotDelete(vmname, uuid): Promise<IChildProcessResult> {
+  public async snapshotDelete(vmname: string, uuid): Promise<IChildProcessResult> {
     this.Logging.info('Deleting snapshot "%s" for VM "%s"', uuid, vmname);
     const cmd =
       "snapshot " + JSON.stringify(vmname) + " delete " + JSON.stringify(uuid);
     return await this.vboxmanage(cmd);
   }
 
-  // TODO: Add doc comment
+  /**
+   * Restore a VM from a snapshot
+   * @param vmname VM name or uuid
+   * @param uuid Snapshot uuid to restore to
+   */
   // TODO: Write test
   // TODO: Add catch block
-  public async snapshotRestore(vmname, uuid): Promise<IChildProcessResult> {
+  public async snapshotRestore(vmname: string, uuid): Promise<IChildProcessResult> {
     this.Logging.info('Restoring snapshot "%s" for VM "%s"', uuid, vmname);
     const cmd =
       "snapshot " + JSON.stringify(vmname) + " restore " + JSON.stringify(uuid);
     return await this.vboxmanage(cmd);
   }
 
-  // TODO: Add doc comment
+  /**
+   * Check to see if a particular machine isRunning
+   * @param vmname VM name or uuid
+   */
   // TODO: Write test
   // TODO: Add catch block
   public async isRunning(vmname): Promise<boolean> {
@@ -467,10 +533,14 @@ export class Virtualbox {
     }
   }
 
-  // TODO: Add doc comment
+  /**
+   * Send keyboard character codes to a VM
+   * @param vmname VM name or uuid
+   * @param codes Codes to send.
+   */
   // TODO: Write test
   // TODO: Add catch block
-  public async keyboardputscancode(vmname, codes): Promise<IChildProcessResult> {
+  public async keyboardputscancode(vmname: string, codes): Promise<IChildProcessResult> {
     const codeStr = codes
       .map((code) => {
         let s = code.toString(16);
@@ -487,7 +557,10 @@ export class Virtualbox {
     );
   }
 
-  // TODO: Add doc comment
+  /**
+   * Execute a program inside a VM
+   * @param options Execution config
+   */
   // TODO: Write test
   // TODO: Add catch block
   public async vmExec(options): Promise<IChildProcessResult> {
@@ -572,7 +645,10 @@ export class Virtualbox {
     return await this.vboxmanage(cmd);
   }
 
-  // TODO: Add doc comment
+  /**
+   * Kill a process inside of a VM
+   * @param options Process config
+   */
   // TODO: Write test
   // TODO: Add catch block
   public async vmKill(options): Promise<IChildProcessResult> {
@@ -612,7 +688,10 @@ export class Virtualbox {
     return result;
   }
 
-  // TODO: Add doc comment
+  /**
+   * Get a guest property from a VM
+   * @param options Guest configuration
+   */
   // TODO: Write test
   // TODO: Add catch block
   public async getGuestProperty(options): Promise< any > {
@@ -632,7 +711,10 @@ export class Virtualbox {
     return retValue;
   }
 
-  // TODO: Add doc comment
+  /**
+   * Get extra data from a VM
+   * @param options Guest configuration
+   */
   // TODO: Write test
   // TODO: Add catch block
   public async getExtraData(options): Promise< any > {
@@ -652,7 +734,10 @@ export class Virtualbox {
     return value;
   }
 
-  // TODO: Add doc comment
+  /**
+   * Set extra data for a VM
+   * @param options Guest configuration
+   */
   // TODO: Write test
   // TODO: Add catch block
   public async setExtraData(options): Promise<IChildProcessResult> {
@@ -680,7 +765,10 @@ export class Virtualbox {
       return [ makeCode[0] + 0x80 ];
     }
   }
-  // TODO: Add doc comment
+
+  /**
+   * Sets the version of the vboxmanage binary
+   */
   // TODO: Write test
   // TODO: Add catch block?
   private async setVersion(): Promise<void> {
@@ -690,7 +778,10 @@ export class Virtualbox {
     this.Logging.info("Virtualbox version detected as %s", this.vboxVersion);
   }
 
-  // TODO: Add doc comment
+  /**
+   * Execute a command on the host machine
+   * @param cmd Command string to execute
+   */
   // TODO: Write test
   // TODO: Add catch block?
   private async command(cmd: string): Promise<IChildProcessResult> {
@@ -705,14 +796,19 @@ export class Virtualbox {
     return result;
   }
 
-  // TODO: Add doc comment
-  // TODO: Write test
-  // TODO: Add catch block?
+  /**
+   * Run vboxcontrol with arugments
+   * @param cmd Argument to vboxcontrol
+   */
+   // TODO: Add catch block?
   private async vboxcontrol(cmd): Promise<IChildProcessResult> {
     return await this.command("VBoxControl " + cmd);
   }
 
-  // TODO: Add doc comment
+  /**
+   * Run vboxmanage with argumetns
+   * @param cmd Arguments to vboxmanage
+   */
   // TODO: Write test
   // TODO: Add catch block?
   private async vboxmanage(cmd): Promise<IChildProcessResult> {
@@ -741,7 +837,10 @@ export class Virtualbox {
     return data;
   }
 
-  // TODO: Add doc comment
+  /**
+   * Get OS type
+   * @param vmName VM name or uuid
+   */
   // TODO: Write test
   // TODO: Add catch block?
   private async getOSType(vmName): Promise< string > {
