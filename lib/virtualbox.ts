@@ -7,7 +7,7 @@ import { configure, getLogger, Logger } from "log4js";
  * IChildProcessResult
  * An interface to capture execution results from the child_process node library.
  */
-declare interface IChildProcessResult { error?: ExecException | null; stdout: string; stderr?: string; }
+declare interface IChildProcessResult { error?: ExecException; stdout: string; stderr?: string; }
 /**
  * Virtualbox
  * A node wrapper around the vboxmanage binary.
@@ -176,10 +176,8 @@ export class Virtualbox {
           exec(command, (error, stdout, stderr) => {
             if (error) {
               reject(error);
-            } else if (stderr) {
-              reject(stderr);
             } else {
-              resolve({ stdout });
+              resolve({stdout, stderr});
             }
           });
         });
@@ -292,7 +290,7 @@ export class Virtualbox {
     }
     startOpts += useGui ? "gui" : "headless";
 
-    this.Logging.info('Starting VM "%s" with options: ', vmname, startOpts);
+    this.Logging.info('Starting VM "%s" with options:', vmname, startOpts);
 
     const result = await this.vboxmanage(
       '-nologo startvm "' + vmname + '"' + startOpts,
@@ -786,6 +784,7 @@ export class Virtualbox {
   // TODO: Add catch block?
   private async command(cmd: string): Promise<IChildProcessResult> {
     const result: IChildProcessResult = await this.Executor(cmd);
+    this.logging.info(result);
     if (
       result.error &&
       cmd.indexOf("pause") !== -1 &&
