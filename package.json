@@ -57,11 +57,13 @@
     "lib": "./lib"
   },
   "scripts": {
-    "ci": "npm run build && npm run lint && npm run test && npm run document",
+    "ci": "npm run test && npm run document",
     "build": "tsc",
     "document": "typedoc --out docs lib --theme minimal",
     "lint": "tslint lib/**.ts",
-    "test": "mocha -r ts-node/register test/*.spec.ts"
+    "pretest": "npm run lint && npm run build",
+    "test": "mocha -r ts-node/register test/unit/*.spec.ts",
+    "test:integration": "mocha -r ts-node/register test/integration/*.ts"
   },
   "main": "./lib/virtualbox",
   "repository": {
@@ -69,8 +71,7 @@
     "url": "https://github.com/Node-Virtualization/node-virtualbox.git"
   },
   "dependencies": {
-    "log4js": "^4.0.2",
-    "mz": "^2.7.0"
+    "log4js": "^4.0.2"
   },
   "devDependencies": {
     "@types/chai": "^4.1.7",
@@ -85,7 +86,7 @@
     "sinon": "^7.3.2",
     "ts-node": "^8.2.0",
     "tslint": "^5.17.0",
-    "typedoc": "^0.14.2",
+    "typedoc": "^0.15.0",
     "typescript": "^3.3.4000"
   },
   "engines": {

@@ -1,12 +1,14 @@
 "use strict";
 
-//TODO: Move to mocha for automation
-var nvbox = require('../dist/virtualbox'),
-    args = process.argv.slice(2);
+// TODO: Move to mocha for automation
+import {Virtualbox} from "../dist/virtualbox";
+
+const vbox = new Virtualbox();
+const args = process.argv.slice(2);
 
 // TODO: Refactor with a promise
-virtualbox.pause(args[0], function(error){
-  if(error) {
+vbox.pause(args[0], (error) => {
+  if (error) {
     throw error;
   }
 });

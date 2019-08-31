@@ -1,19 +1,14 @@
 "use strict";
+import assert from "assert";
+import { getLogger } from "log4js";
+import Virtualbox from "../../dist/virtualbox";
 
-//TODO: Move to mocha for automation
-var util = require('util');
-var Virtualbox = require('../dist/lib/virtualbox').Virtualbox,
-    virtualbox = new Virtualbox(),
-    args = process.argv.slice(2);
-
-// TODO: Refactor with a promise
-virtualbox.list().then(function(list_data, error){
-  if(error) {
-    throw error;
-  }
-
-  if(list_data) {
-    console.log(util.inspect(list_data));
-    //console.log(list_data);
-  }
+describe("Virtualbox#list", () => {
+  const logger = getLogger("List integration test");
+  it("should be successful", async () => {
+    const virtualbox = new Virtualbox();
+    const result = await virtualbox.list();
+    logger.info(JSON.stringify(result, null, 4));
+    assert.equal(result.success, true);
+  });
 });

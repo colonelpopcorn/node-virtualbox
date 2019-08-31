@@ -1,7 +1,7 @@
 import { assert } from "chai";
 import { stub } from "sinon";
-import { Virtualbox } from "../lib/virtualbox";
-import { testData } from "./testdata";
+import Virtualbox from "../../lib/virtualbox";
+import { testData } from "../testdata";
 
 const VM_NAME = "testvm";
 
