@@ -407,9 +407,21 @@ export default class Virtualbox {
    */
   // TODO: Write test
   // TODO: Add catch block
-  public async acpisleepbutton(vmname: string): Promise<IChildProcessResult> {
+  public async acpisleepbutton(vmname: string): Promise<IVboxApiResponse> {
     this.logging.info('ACPI sleep button VM "%s"', vmname);
-    return await this.vboxmanage(`controlvm ${vmname} acpisleepbutton`);
+    const result = await this.vboxmanage(`controlvm ${vmname} acpisleepbutton`);
+    if (result.stderr === undefined || result.stderr === "") {
+      return {
+        responseMessage: `Successfully sent sleep signal to ${vmname}`,
+        success: true,
+      };
+    } else {
+      return {
+        error: result.stderr,
+        responseMessage: `Something went wrong while sending sleep signal to ${vmname}`,
+        success: false,
+      };
+    }
   }
 
   /**
