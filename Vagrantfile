@@ -4,6 +4,9 @@ Vagrant.configure("2") do |config|
     config.vm.define machine_name do |machine|
       config.vm.box = "ubuntu/xenial64"
       machine.vm.hostname = machine_name
+      machine.vm.provider "virtualbox" do |vbox|
+        vbox.name = machine_name
+      end
     end
   end
 end
