@@ -8,6 +8,8 @@ import { configure, getLogger, Logger } from "log4js";
  * An interface to capture execution results from the child_process node library.
  */
 declare interface IChildProcessResult { error?: ExecException; stdout: string; stderr?: string; }
+
+declare interface IVboxApiResponse { responseMessage: string; success: boolean; [key: string]: any; }
 /**
  * Virtualbox
  * A node wrapper around the vboxmanage binary.
@@ -224,12 +226,27 @@ export default class Virtualbox {
     return await this.vboxmanage('controlvm "' + vmname + '" pause');
   }
 
+
+  /**
+   * Check to see if a vm exists by name or uuid
+   * @param vmName VM name or uuid
+   */
+  public async machineExists(vmName: string): Promise<boolean> {
+    try {
+      const fullList = await this.list();
+      const doesExist = fullList.list.some((x) => x.name === vmName || x.guid === vmName);
+      return doesExist;
+    } catch (err) {
+      return false;
+    }
+  }
+
   /**
    * Get a list of VMs on the current system.
    */
   // TODO: Write test
   // TODO: Add catch block
-  public async list(): Promise<any> {
+  public async list(): Promise<IVboxApiResponse> {
     this.logging.info("Listing VMs");
     try {
       const result = await this.vboxmanage('list "runningvms"');
@@ -366,11 +383,22 @@ export default class Virtualbox {
    */
   // TODO: Write test
   // TODO: Add catch block
-  public async acpipowerbutton(vmname: string): Promise<IChildProcessResult> {
+  public async acpipowerbutton(vmname: string): Promise<IVboxApiResponse> {
     this.logging.info('ACPI power button VM "%s"', vmname);
     const result = await this.vboxmanage('controlvm "' + vmname + '" acpipowerbutton');
     this.logging.debug(result);
-    return result;
+    if (result.stderr === undefined || result.stderr === "") {
+      return {
+        responseMessage: `Successfully sent power cycle signal to ${vmname}`,
+        success: true,
+      };
+    } else {
+      return {
+        error: result.stderr,
+        responseMessage: `Something went wrong while sending power cycle signal to ${vmname}`,
+        success: false,
+      };
+    }
   }
 
   /**
