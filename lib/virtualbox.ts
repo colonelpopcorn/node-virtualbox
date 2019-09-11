@@ -359,11 +359,30 @@ export default class Virtualbox {
    */
   // TODO: Write test
   // TODO: Add catch block
-  public async vmExport(vmname: string, output: string): Promise<IChildProcessResult> {
-    this.logging.info('Exporting VM "%s"', vmname);
-    return await this.vboxmanage(
-      'export "' + vmname + '" --output "' + output + '"',
-    );
+  public async vmExport(vmname: string, output: string): Promise<IVboxApiResponse> {
+    try {
+      this.logging.info('Exporting VM "%s"', vmname);
+      const result = await this.vboxmanage(
+        'export "' + vmname + '" --output "' + output + '"',
+      );
+      if (result.stdout && result.stdout.includes("Success")) {
+        return {
+          progress: result.stderr,
+          responseMessage: result.stdout,
+          success: true,
+        };
+      } else {
+        return {
+          responseMessage: result.stderr || "",
+          success: false,
+        };
+      }
+    } catch (err) {
+      return {
+        responseMessage: err,
+        success: false,
+      };
+    }
   }
 
   /**

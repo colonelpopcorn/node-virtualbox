@@ -1,13 +1,38 @@
+  // tslint:disable: only-arrow-functions
 "use strict";
+import assert from "assert";
+import * as fs from "fs";
+import { getLogger } from "log4js";
+import * as path from "path";
+import Virtualbox from "../../dist/virtualbox";
 
-//TODO: Move to mocha for automation
-var Virtualbox = require('../dist/virtualbox').Virtualbox,
-    virtualbox = new Virtualbox(),
-    args = process.argv.slice(2);
+const logger = getLogger("VM Exec Integration Test");
+const MACHINE_NAME = "test-machine-1";
+const virtualbox = new Virtualbox();
+const IMAGE_NAME = "test.ovf";
+const FILE_PATH = path.join(process.cwd(), "testexport");
 
-// TODO: Refactor with a promise
-virtualbox.vmExport(args[0], args[1], function(error){
-  if(error) {
-    throw error;
+before(async function() {
+  const result = await virtualbox.isRunning(MACHINE_NAME);
+  if (!fs.existsSync(FILE_PATH)) {
+    fs.mkdirSync(FILE_PATH);
   }
+  assert.ok((!result), "Machine is not running! Please run the vagrantfile in the root of the project!");
+});
+
+describe("Virtualbox#vmExport", async function() {
+  it("should be successful", async function() {
+    this.timeout(30000);
+    const result = await virtualbox.vmExport(MACHINE_NAME, `${FILE_PATH}/${IMAGE_NAME}`);
+    logger.info(JSON.stringify(result, null, 4));
+    assert.equal(result.success, true);
+  });
+});
+
+after(async function() {
+  const files = fs.readdirSync(FILE_PATH);
+  files.forEach((x: string) => {
+    fs.unlinkSync(`${FILE_PATH}/${x}`);
+  });
+  fs.rmdirSync(FILE_PATH);
 });
