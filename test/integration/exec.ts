@@ -1,29 +1,33 @@
 "use strict";
+import assert from "assert";
+import { getLogger } from "log4js";
+import Virtualbox from "../../dist/virtualbox";
+const logger = getLogger("VM Exec Integration Test");
+const MACHINE_NAME = "test-machine-1";
+const virtualbox = new Virtualbox();
 
-//TODO: Move to mocha for automation
-var Virtualbox = require('../dist/virtualbox'),
-    virtualbox = new Virtualbox(),
-    args       = process.argv.slice(2),
-    vm         = args[0],
-    user       = args[1],
-    pass       = args[2],
-    ostype     = virtualbox.guestproperty.os(vm),
-    path;
+before(async () => {
+  const result = await virtualbox.isRunning(MACHINE_NAME);
+  assert.ok((result), "Machine is not running! Please run the vagrantfile in the root of the project!");
+});
 
-if (ostype === "windows") {
-  path = "ping.exe";
-} else if (ostype === "mac") {
-  path = "ping";
-} else {
-  path = "ping";
-}
-
-// TODO: Refactor with a promise
-virtualbox.start(vm, function(){
-  virtualbox.exec({ 'vm': vm, 'user': user, 'passwd': pass, 'path': path, 'params': [args[1] || 'https://google.com'] }, function(error, stdout){
-    if(error) {
-      throw error;
-    }
-    console.log(stdout);
+describe("Virtualbox#vmExec", () => {
+  it("should be successful", async () => {
+    const execOpts = await getOpts();
+    const result = await virtualbox.vmExec(execOpts);
+    logger.info(JSON.stringify(result, null, 4));
+    assert.equal(result.success, true);
   });
 });
+
+async function getOpts(): Promise<any> {
+  try {
+    const vm = MACHINE_NAME;
+    const user = "vagrant";
+    const os = await virtualbox.getOSType(vm);
+    const path = os ===  "windows" ? "ping.exe" : "ping";
+    return { vm, user, passwd: user /* also user*/, path, params: ["https://google.com"] };
+  } catch (ex) {
+    logger.error("Failed to get options", ex);
+  }
+}
