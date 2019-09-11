@@ -207,10 +207,10 @@ export default class Virtualbox {
       this.REGEX.LINUX.test(this.hostPlatform)
     ) {
       // Mac OS X and most Linux use the same binary name, in the path
-      vBoxManageBinary = "vboxmanage ";
+      vBoxManageBinary = "vboxmanage";
     } else {
       // Otherwise (e.g., SunOS) hope it's in the path
-      vBoxManageBinary = "vboxmanage ";
+      vBoxManageBinary = "vboxmanage";
     }
     this.vboxManageBinary = vBoxManageBinary;
   }
@@ -818,7 +818,7 @@ export default class Virtualbox {
   // TODO: Write test
   // TODO: Add catch block?
   private async setVersion(): Promise<void> {
-    const result = await this.Executor(this.vboxManageBinary + " --version");
+    const result = await this.Executor(`${this.vboxManageBinary} --version`);
     // e.g., "4.3.38r106717" or "5.0.20r106931"
     this.vboxVersion = result.stdout;
     this.logging.info("Virtualbox version detected as %s", this.vboxVersion);
@@ -859,7 +859,7 @@ export default class Virtualbox {
   // TODO: Write test
   // TODO: Add catch block?
   private async vboxmanage(cmd): Promise<IChildProcessResult> {
-    const result = await this.command(this.vboxManageBinary + cmd);
+    const result = await this.command(`${this.vboxManageBinary} ${cmd}`);
     return result;
   }
 
@@ -893,22 +893,22 @@ export default class Virtualbox {
    */
   // TODO: Write test
   // TODO: Add catch block?
-  private async getOSType(vmName): Promise< string > {
-    if (this.osType) {
-      return this.osType;
-    }
-
+  private async getOSType(vmName: string): Promise< string | null > {
     let result;
     try {
+      if (this.osType) {
+        return this.osType;
+      }
+
+      const cmd = `${this.vboxManageBinary} showvminfo -machinereadable ${vmName}`;
+      this.logging.info("Command is: ", cmd);
       result = await this.Executor(
-        `${this.vboxManageBinary} showvminfo -machinereadable ${vmName}`,
+        cmd,
       );
     } catch (e) {
+      this.logging.error("Failed", e);
       this.logging.info("Could not showvminfo for %s", vmName);
-    }
-
-    if (result || result.error) {
-      throw result.error;
+      return null;
     }
 
     // The ostype is matched against the ID attribute of 'vboxmanage list ostypes'
