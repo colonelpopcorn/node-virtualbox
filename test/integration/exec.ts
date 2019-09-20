@@ -1,3 +1,4 @@
+// tslint:disable: only-arrow-functions
 "use strict";
 import assert from "assert";
 import { getLogger } from "log4js";
@@ -6,13 +7,13 @@ const logger = getLogger("VM Exec Integration Test");
 const MACHINE_NAME = "test-machine-1";
 const virtualbox = new Virtualbox();
 
-before(async () => {
+before(async function() {
   const result = await virtualbox.isRunning(MACHINE_NAME);
   assert.ok((result), "Machine is not running! Please run the vagrantfile in the root of the project!");
 });
 
-describe("Virtualbox#vmExec", () => {
-  it("should be successful", async () => {
+describe("Virtualbox#vmExec", function() {
+  it("should be successful", async function() {
     const execOpts = await getOpts();
     const result = await virtualbox.vmExec(execOpts);
     logger.info(JSON.stringify(result, null, 4));

@@ -6,7 +6,7 @@ import { getLogger } from "log4js";
 import * as path from "path";
 import Virtualbox from "../../dist/virtualbox";
 
-const logger = getLogger("VM Exec Integration Test");
+const logger = getLogger("VM Export Integration Test");
 const MACHINE_NAME = "test-machine-1";
 const virtualbox = new Virtualbox();
 const IMAGE_NAME = "test.ovf";

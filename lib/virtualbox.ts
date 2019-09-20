@@ -782,21 +782,24 @@ export default class Virtualbox {
    */
   // TODO: Write test
   // TODO: Add catch block
-  public async getExtraData(options): Promise< any > {
+  public async getExtraData(options): Promise< IVboxApiResponse > {
     const vm = options.vm || options.name || options.vmname || options.title;
     const key = options.key;
-    let value = options.defaultValue || options.value;
 
     const cmd = 'getextradata "' + vm + '" "' + key + '"';
     const result = await this.vboxmanage(cmd);
     if (result[1]) {
       throw result[1];
     }
-    value = result[0].substr(result[0].indexOf(":") + 1).trim();
+    let value: string | undefined = result.stdout.substr(result.stdout.indexOf(":") + 1).trim();
     if (value === "No value set!") {
       value = undefined;
     }
-    return value;
+    return {
+      responseMessage: value ? `Got data for key ${key}!` : `Could not get extra data for key ${key}`,
+      success: value !== undefined,
+      value,
+    };
   }
 
   /**
@@ -805,13 +808,19 @@ export default class Virtualbox {
    */
   // TODO: Write test
   // TODO: Add catch block
-  public async setExtraData(options): Promise<IChildProcessResult> {
+  public async setExtraData(options): Promise<IVboxApiResponse> {
     const vm = options.vm || options.name || options.vmname || options.title;
     const key = options.key;
     const value = options.defaultValue || options.value;
 
     const cmd = 'setextradata "' + vm + '" "' + key + '" "' + value + '"';
-    return await this.vboxmanage(cmd);
+    const result = await this.vboxmanage(cmd);
+    return {
+      msg: result.stdout,
+      responseMessage: "Set extra data!",
+      success: true,
+    };
+
   }
 
   public getBreakCode(key) {
