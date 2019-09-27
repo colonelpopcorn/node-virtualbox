@@ -10,6 +10,8 @@ import { configure, getLogger, Logger } from "log4js";
 declare interface IChildProcessResult { error?: ExecException; stdout: string; stderr?: string; }
 
 declare interface IVboxApiResponse { responseMessage: string; success: boolean; [key: string]: any; }
+
+declare interface IVboxCliOptions { vmName: string; key: string; value?: string; }
 /**
  * Virtualbox
  * A node wrapper around the vboxmanage binary.
@@ -759,21 +761,40 @@ export default class Virtualbox {
    */
   // TODO: Write test
   // TODO: Add catch block
-  public async getGuestProperty(options): Promise< any > {
-    const vm = options.vm || options.name || options.vmname || options.title;
+  public async getGuestProperty(options: IVboxCliOptions): Promise< IVboxApiResponse > {
+    const vm = options.vmName;
     const key = options.key;
-    const value = options.defaultValue || options.value;
+
     await this.getOSType(vm);
-    const cmd = 'guestproperty get "' + vm + '" ' + key;
+    const cmd = `guestproperty get "${vm}" "${key}"`;
     const result = await this.vboxmanage(cmd);
     if (result.error) {
       throw result.error;
     }
-    let retValue: (string | undefined) = result.stdout.substr(result.stdout.indexOf(":") + 1).trim();
-    if (retValue === "No value set!") {
-      retValue = undefined;
+    let value: (string | undefined) = result.stdout.substr(result.stdout.indexOf(":") + 1).trim();
+    if (value === "No value set!") {
+      value = undefined;
     }
-    return retValue;
+    return {
+      responseMessage: value ? `Got data for key ${key}!` : `Could not get extra data for key ${key}`,
+      success: value !== undefined,
+      value,
+    };
+  }
+
+  public async setGuestProperty(options: IVboxCliOptions): Promise< IVboxApiResponse > {
+    await this.getOSType(options.vmName);
+    const cmd = `guestproperty set "${options.vmName}" "${options.key}" "${options.value}"`;
+    const result = await this.vboxmanage(cmd);
+    if (result.error) {
+      throw result.error;
+    }
+    return {
+      msg: result.stdout,
+      responseMessage: `Set guest property for key ${options.key}!`,
+      success: true,
+    };
+
   }
 
   /**
@@ -786,10 +807,12 @@ export default class Virtualbox {
     const vm = options.vm || options.name || options.vmname || options.title;
     const key = options.key;
 
-    const cmd = 'getextradata "' + vm + '" "' + key + '"';
+    // const cmd = 'getextradata "' + vm + '" "' + key + '"';
+    const cmd = `getextradata "${vm}" "${key}"`;
     const result = await this.vboxmanage(cmd);
-    if (result[1]) {
-      throw result[1];
+    this.logging.info(result);
+    if (result.error) {
+      throw result.error;
     }
     let value: string | undefined = result.stdout.substr(result.stdout.indexOf(":") + 1).trim();
     if (value === "No value set!") {
@@ -929,7 +952,6 @@ export default class Virtualbox {
       }
 
       const cmd = `${this.vboxManageBinary} showvminfo -machinereadable ${vmName}`;
-      this.logging.info("Command is: ", cmd);
       result = await this.Executor(
         cmd,
       );
