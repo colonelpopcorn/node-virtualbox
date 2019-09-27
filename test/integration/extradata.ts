@@ -16,7 +16,7 @@ before(async function() {
   assert.ok(setExtraData.success === true, "Failed to set extra data on VM!");
 });
 
-describe("Virtualbox#getextradata && Virtualbox#setextradata", function() {
+describe("Virtualbox#setExtraData && Virtualbox#getExtraData", function() {
   it("should be successful", async function() {
     const result = await virtualbox.getExtraData({name: MACHINE_NAME, key: "Bob"});
     logger.info(JSON.stringify(result, null, 4));
