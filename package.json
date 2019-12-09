@@ -58,6 +58,7 @@
   },
   "scripts": {
     "ci": "npm run test && npm run document",
+    "prebuild": "npm run lint",
     "build": "tsc",
     "document": "typedoc --out docs lib --theme minimal",
     "lint": "tslint lib/**.ts",

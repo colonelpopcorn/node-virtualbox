@@ -1,12 +1,18 @@
 "use strict";
 
-//TODO: Move to mocha for automation
-var nvbox = require('../dist/virtualbox'),
-    args = process.argv.slice(2);
+// TODO: Move to mocha for automation
+import { assert } from "chai";
+import { getLogger } from "log4js";
+import { Virtualbox } from "../../dist/virtualbox";
+const MACHINE_NAME = "test-machine-1";
 
-// TODO: Refactor with a promise
-virtualbox.modify(args[0], args[1], function(error){
-    if(error) {
-        throw error;
-    }
+describe("VirtualBox#modify", () => {
+  const logger = getLogger("Modify integration test");
+  const virtualbox = new Virtualbox();
+
+  it("should modify a vm", async () => {
+    const result = await virtualbox.modify(MACHINE_NAME, {});
+    logger.info("Modify result is", JSON.stringify(result, null, 4));
+    assert.isOk(result.success, "Failed to modify vm!");
+  });
 });

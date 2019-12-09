@@ -1,8 +1,6 @@
 // tslint:disable: only-arrow-functions
 "use strict";
 
-import VirtualBox from "../../dist/virtualbox";
+import { Virtualbox } from "../../dist/virtualbox";
 
-describe("Virtualbox#keyboardPutScanCodes", function() {
-
-});
+describe("Virtualbox#keyboardPutScanCodes", () => {});

@@ -1,10 +1,12 @@
 {
-    //TODO: move these settings to ESLint per issue #4534 https://github.com/palantir/tslint/issues/4534
-    "defaultSeverity": "error",
-    "extends": [
-        "tslint:recommended"
-    ],
-    "jsRules": {},
-    "rules": {},
-    "rulesDirectory": []
+  // TODO: move these settings to ESLint per issue #4534 https://github.com/palantir/tslint/issues/4534
+  "defaultSeverity": "error",
+  "extends": ["tslint:recommended"],
+  "jsRules": {},
+  "rules": {
+    "trailing-comma": false,
+    "arrow-parens": false,
+    "object-literal-sort-keys": false
+  },
+  "rulesDirectory": []
 }
