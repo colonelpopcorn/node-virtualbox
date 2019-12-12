@@ -473,7 +473,7 @@ export class Virtualbox {
    */
   // TODO: Write test
   // TODO: Add catch block
-  public async modify(vname: string, properties): Promise<IChildProcessResult> {
+  public async modify(vname: string, properties): Promise<IVboxApiResponse> {
     this.logging.info("Modifying VM %s", vname);
     const args = [vname];
 
@@ -490,15 +490,21 @@ export class Virtualbox {
       }
     }
 
-    const cmd =
-      "modifyvm " +
-      args
-        .map(arg => {
-          return '"' + arg + '"';
-        })
-        .join(" ");
+    const cmd = `modifyvm ${args.join(" ")}`;
 
-    return await this.vboxmanage(cmd);
+    const result = await this.vboxmanage(cmd);
+    if (result.stdout === "" && result.stderr === "") {
+      return {
+        success: true,
+        responseMessage: "Successfully modified vm!",
+        properties
+      };
+    } else {
+      return {
+        success: false,
+        responseMessage: `Failed to modify VM: ${result.stderr}`
+      };
+    }
   }
 
   /**

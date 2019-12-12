@@ -1,4 +1,3 @@
-// tslint:disable: only-arrow-functions
 "use strict";
 import assert from "assert";
 import * as fs from "fs";
