@@ -61,7 +61,7 @@
     "prebuild": "npm run lint",
     "build": "tsc",
     "document": "typedoc --out docs lib --theme minimal",
-    "lint": "tslint lib/**.ts",
+    "lint": "eslint lib/**.ts",
     "pretest": "npm run lint && npm run build",
     "test": "mocha -r ts-node/register test/unit/*.spec.ts",
     "test:integration": "mocha -r ts-node/register test/integration/*.ts"
@@ -72,23 +72,24 @@
     "url": "https://github.com/Node-Virtualization/node-virtualbox.git"
   },
   "dependencies": {
-    "log4js": "^4.0.2"
+    "log4js": "^4.5.1"
   },
   "devDependencies": {
-    "@types/chai": "^4.1.7",
-    "@types/mocha": "^5.2.6",
-    "@types/node": "^11.11.6",
-    "@types/sinon": "^7.0.12",
-    "async": "^2.1.4",
+    "@types/chai": "^4.2.7",
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^11.15.3",
+    "@types/sinon": "^7.5.1",
+    "@typescript-eslint/eslint-plugin": "^2.11.0",
+    "@typescript-eslint/parser": "^2.11.0",
+    "async": "^2.6.3",
     "chai": "^4.2.0",
     "eslint": "^5.16.0",
-    "mocha": "^6.1.4",
+    "mocha": "^6.2.2",
     "nodeunit": "^0.11.3",
-    "sinon": "^7.3.2",
-    "ts-node": "^8.2.0",
-    "tslint": "^5.17.0",
-    "typedoc": "^0.15.0",
-    "typescript": "^3.3.4000"
+    "sinon": "^7.5.0",
+    "ts-node": "^8.5.4",
+    "typedoc": "^0.15.4",
+    "typescript": "^3.7.3"
   },
   "engines": {
     "engine": "node >= 0.4.1"

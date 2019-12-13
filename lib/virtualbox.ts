@@ -1,25 +1,25 @@
 // TODO: Add github pages publish to CI after typedoc works
 // TODO: Add automatic testing of regex patterns.
-import { exec, ExecException } from "child_process";
-import { configure, getLogger, Logger } from "log4js";
+import { ExecException, exec } from "child_process";
+import { Logger, configure, getLogger } from "log4js";
 
 /**
  * IChildProcessResult
  * An interface to capture execution results from the child_process node library.
  */
-export interface IChildProcessResult {
+export interface ChildProcessResult {
   error?: ExecException;
-  stdout: string;
+  stdout?: string;
   stderr?: string;
 }
 
-export interface IVboxApiResponse {
+export interface VboxApiResponse {
+  [key: string]: any;
   responseMessage: string;
   success: boolean;
-  [key: string]: any;
 }
 
-export interface IVboxCliOptions {
+export interface VboxCliOptions {
   vmName: string;
   key: string;
   value?: string;
@@ -30,10 +30,10 @@ export interface IVboxCliOptions {
  * A node wrapper around the vboxmanage binary.
  */
 export class Virtualbox {
-  get Executor(): (command: string) => Promise<IChildProcessResult> {
+  get Executor(): (command: string) => Promise<ChildProcessResult> {
     return this.executor;
   }
-  set Executor(executor: (command: string) => Promise<IChildProcessResult>) {
+  set Executor(executor: (command: string) => Promise<ChildProcessResult>) {
     this.executor = executor;
   }
 
@@ -158,7 +158,7 @@ export class Virtualbox {
   private vboxVersion: string;
   private vboxManageBinary: string;
   private logging: Logger;
-  private executor: (command: string) => Promise<IChildProcessResult>;
+  private executor: (command: string) => Promise<ChildProcessResult>;
   private knownOSTypes = {
     LINUX: "linux",
     MAC: "mac",
@@ -168,7 +168,7 @@ export class Virtualbox {
   // TODO: Add doc comment
   // TODO: Write test
   // TODO: Add catch block
-  constructor(executor?: (command: string) => Promise<IChildProcessResult>) {
+  constructor(executor?: (command: string) => Promise<ChildProcessResult>) {
     configure({
       appenders: {
         out: {
@@ -185,17 +185,16 @@ export class Virtualbox {
     this.logging = getLogger("VirtualBox");
 
     if (executor === undefined) {
-      this.Executor = (command: string): Promise<IChildProcessResult> => {
-        return new Promise((resolve, reject) => {
+      this.Executor = (command: string): Promise<ChildProcessResult> =>
+        new Promise(resolve => {
           exec(command, (error, stdout, stderr) => {
             if (error) {
-              reject(error);
+              resolve({ error });
             } else {
               resolve({ stdout, stderr });
             }
           });
         });
-      };
     } else {
       this.Executor = executor;
     }
@@ -236,9 +235,20 @@ export class Virtualbox {
    */
   // TODO: Write test
   // TODO: Add catch block
-  public async pause(vmname): Promise<IChildProcessResult> {
+  public async pause(vmname): Promise<VboxApiResponse> {
     this.logging.info('Pausing VM "%s"', vmname);
-    return await this.vboxmanage('controlvm "' + vmname + '" pause');
+    const result = await this.vboxmanage('controlvm "' + vmname + '" pause');
+    if (result && !(result.stderr || result.error)) {
+      return {
+        success: true,
+        responseMessage: result.stdout || "Successfully paused vm!"
+      };
+    } else {
+      return {
+        success: false,
+        responseMessage: result.stderr || "Cannot pause vm!"
+      };
+    }
   }
 
   /**
@@ -262,7 +272,7 @@ export class Virtualbox {
    */
   // TODO: Write test
   // TODO: Add catch block
-  public async list(): Promise<IVboxApiResponse> {
+  public async list(): Promise<VboxApiResponse> {
     this.logging.info("Listing VMs");
     try {
       const result = await this.vboxmanage('list "runningvms"');
@@ -300,7 +310,7 @@ export class Virtualbox {
    */
   // TODO: Write test
   // TODO: Add catch block
-  public async reset(vmname): Promise<IChildProcessResult> {
+  public async reset(vmname): Promise<ChildProcessResult> {
     this.logging.info('Resetting VM "%s"', vmname);
     return await this.vboxmanage('controlvm "' + vmname + '" reset');
   }
@@ -311,7 +321,7 @@ export class Virtualbox {
    */
   // TODO: Write test
   // TODO: Add catch block
-  public async resume(vmname): Promise<IChildProcessResult> {
+  public async resume(vmname): Promise<ChildProcessResult> {
     this.logging.info('Resuming VM "%s"', vmname);
     return await this.vboxmanage('controlvm "' + vmname + '" resume');
   }
@@ -326,7 +336,7 @@ export class Virtualbox {
   public async start(
     vmname: string,
     useGui: boolean
-  ): Promise<IChildProcessResult> {
+  ): Promise<ChildProcessResult> {
     let startOpts = " --type ";
     if (typeof useGui === "function") {
       useGui = false;
@@ -354,7 +364,7 @@ export class Virtualbox {
    */
   // TODO: Write test
   // TODO: Add catch block
-  public async stop(vmname): Promise<IChildProcessResult> {
+  public async stop(vmname): Promise<ChildProcessResult> {
     this.logging.info('Stopping VM "%s"', vmname);
     return await this.vboxmanage('controlvm "' + vmname + '" savestate');
   }
@@ -362,7 +372,7 @@ export class Virtualbox {
   // TODO: Add doc comment
   // TODO: Write test
   // TODO: Add catch block
-  public async savestate(vmname): Promise<IChildProcessResult> {
+  public async savestate(vmname): Promise<ChildProcessResult> {
     this.logging.info('Saving State (alias to stop) VM "%s"', vmname);
     return await this.stop(vmname);
   }
@@ -380,7 +390,7 @@ export class Virtualbox {
   public async vmExport(
     vmname: string,
     output: string
-  ): Promise<IVboxApiResponse> {
+  ): Promise<VboxApiResponse> {
     try {
       this.logging.info('Exporting VM "%s"', vmname);
       const result = await this.vboxmanage(
@@ -412,7 +422,7 @@ export class Virtualbox {
    */
   // TODO: Write test
   // TODO: Add catch block
-  public async poweroff(vmname: string): Promise<IChildProcessResult> {
+  public async poweroff(vmname: string): Promise<ChildProcessResult> {
     this.logging.info('Powering off VM "%s"', vmname);
     return await this.vboxmanage('controlvm "' + vmname + '" poweroff');
   }
@@ -423,7 +433,7 @@ export class Virtualbox {
    */
   // TODO: Write test
   // TODO: Add catch block
-  public async acpipowerbutton(vmname: string): Promise<IVboxApiResponse> {
+  public async acpipowerbutton(vmname: string): Promise<VboxApiResponse> {
     this.logging.info('ACPI power button VM "%s"', vmname);
     const result = await this.vboxmanage(
       'controlvm "' + vmname + '" acpipowerbutton'
@@ -449,7 +459,7 @@ export class Virtualbox {
    */
   // TODO: Write test
   // TODO: Add catch block
-  public async acpisleepbutton(vmname: string): Promise<IVboxApiResponse> {
+  public async acpisleepbutton(vmname: string): Promise<VboxApiResponse> {
     this.logging.info('ACPI sleep button VM "%s"', vmname);
     const result = await this.vboxmanage(`controlvm ${vmname} acpisleepbutton`);
     if (result.stderr === undefined || result.stderr === "") {
@@ -473,7 +483,7 @@ export class Virtualbox {
    */
   // TODO: Write test
   // TODO: Add catch block
-  public async modify(vname: string, properties): Promise<IVboxApiResponse> {
+  public async modify(vname: string, properties): Promise<VboxApiResponse> {
     this.logging.info("Modifying VM %s", vname);
     const args = [vname];
 
@@ -577,13 +587,12 @@ export class Virtualbox {
     }
 
     const result = await this.vboxmanage(cmd);
-    let uuid;
     if (result.error) {
       throw new Error(`${result.error}`);
     }
-    uuid = result.stdout.trim().replace(this.REGEX.UUID_PARSE, (l, u) => {
-      return u;
-    });
+    const uuid =
+      result.stdout?.trim().replace(this.REGEX.UUID_PARSE, (l, u) => u) ||
+      "Successfully took a snapshot!";
     return uuid;
   }
 
@@ -597,7 +606,7 @@ export class Virtualbox {
   public async snapshotDelete(
     vmname: string,
     uuid
-  ): Promise<IChildProcessResult> {
+  ): Promise<ChildProcessResult> {
     this.logging.info('Deleting snapshot "%s" for VM "%s"', uuid, vmname);
     const cmd =
       "snapshot " + JSON.stringify(vmname) + " delete " + JSON.stringify(uuid);
@@ -614,7 +623,7 @@ export class Virtualbox {
   public async snapshotRestore(
     vmname: string,
     uuid
-  ): Promise<IChildProcessResult> {
+  ): Promise<ChildProcessResult> {
     this.logging.info('Restoring snapshot "%s" for VM "%s"', uuid, vmname);
     const cmd =
       "snapshot " + JSON.stringify(vmname) + " restore " + JSON.stringify(uuid);
@@ -634,7 +643,7 @@ export class Virtualbox {
       'Checking virtual machine "%s" is running or not',
       vmname
     );
-    if (result.stdout.includes(vmname)) {
+    if (result.stdout?.includes(vmname)) {
       return true;
     } else {
       return false;
@@ -651,7 +660,7 @@ export class Virtualbox {
   public async keyboardputscancode(
     vmname: string,
     codes
-  ): Promise<IChildProcessResult> {
+  ): Promise<ChildProcessResult> {
     const codeStr = codes
       .map(code => {
         let s = code.toString(16);
@@ -678,7 +687,7 @@ export class Virtualbox {
    */
   // TODO: Write test
   // TODO: Add catch block
-  public async vmExec(options): Promise<IChildProcessResult> {
+  public async vmExec(options): Promise<ChildProcessResult> {
     const vm = options.vm || options.name || options.vmname || options.title;
     const username = options.user || options.username || "Guest";
     const password = options.pass || options.passwd || options.password;
@@ -767,7 +776,7 @@ export class Virtualbox {
    */
   // TODO: Write test
   // TODO: Add catch block
-  public async vmKill(options): Promise<IChildProcessResult> {
+  public async vmKill(options): Promise<ChildProcessResult> {
     let result;
     options = options || {};
     const vm = options.vm || options.name || options.vmname || options.title;
@@ -811,8 +820,8 @@ export class Virtualbox {
   // TODO: Write test
   // TODO: Add catch block
   public async getGuestProperty(
-    options: IVboxCliOptions
-  ): Promise<IVboxApiResponse> {
+    options: VboxCliOptions
+  ): Promise<VboxApiResponse> {
     const vm = options.vmName;
     const key = options.key;
 
@@ -823,7 +832,7 @@ export class Virtualbox {
       throw result.error;
     }
     let value: string | undefined = result.stdout
-      .substr(result.stdout.indexOf(":") + 1)
+      ?.substr(result.stdout?.indexOf(":") + 1)
       .trim();
     if (value === "No value set!") {
       value = undefined;
@@ -838,8 +847,8 @@ export class Virtualbox {
   }
 
   public async setGuestProperty(
-    options: IVboxCliOptions
-  ): Promise<IVboxApiResponse> {
+    options: VboxCliOptions
+  ): Promise<VboxApiResponse> {
     await this.getOSType(options.vmName);
     const cmd = `guestproperty set "${options.vmName}" "${options.key}" "${options.value}"`;
     const result = await this.vboxmanage(cmd);
@@ -859,11 +868,10 @@ export class Virtualbox {
    */
   // TODO: Write test
   // TODO: Add catch block
-  public async getExtraData(options): Promise<IVboxApiResponse> {
+  public async getExtraData(options): Promise<VboxApiResponse> {
     const vm = options.vm || options.name || options.vmname || options.title;
     const key = options.key;
 
-    // const cmd = 'getextradata "' + vm + '" "' + key + '"';
     const cmd = `getextradata "${vm}" "${key}"`;
     const result = await this.vboxmanage(cmd);
     this.logging.info(result);
@@ -871,7 +879,7 @@ export class Virtualbox {
       throw result.error;
     }
     let value: string | undefined = result.stdout
-      .substr(result.stdout.indexOf(":") + 1)
+      ?.substr(result.stdout?.indexOf(":") + 1)
       .trim();
     if (value === "No value set!") {
       value = undefined;
@@ -891,7 +899,7 @@ export class Virtualbox {
    */
   // TODO: Write test
   // TODO: Add catch block
-  public async setExtraData(options): Promise<IVboxApiResponse> {
+  public async setExtraData(options): Promise<VboxApiResponse> {
     const vm = options.vm || options.name || options.vmname || options.title;
     const key = options.key;
     const value = options.defaultValue || options.value;
@@ -929,8 +937,9 @@ export class Virtualbox {
   // TODO: Add catch block?
   private async setVersion(): Promise<void> {
     const result = await this.Executor(`${this.vboxManageBinary} --version`);
+    // eslint-disable-next-line
     // e.g., "4.3.38r106717" or "5.0.20r106931"
-    this.vboxVersion = result.stdout;
+    this.vboxVersion = result.stdout || "No version detected!";
     this.logging.info("Virtualbox version detected as %s", this.vboxVersion);
   }
 
@@ -940,8 +949,8 @@ export class Virtualbox {
    */
   // TODO: Write test
   // TODO: Add catch block?
-  private async command(cmd: string): Promise<IChildProcessResult> {
-    const result: IChildProcessResult = await this.Executor(cmd);
+  private async command(cmd: string): Promise<ChildProcessResult> {
+    const result: ChildProcessResult = await this.Executor(cmd);
     if (
       result.error &&
       cmd.indexOf("pause") !== -1 &&
@@ -958,7 +967,7 @@ export class Virtualbox {
    * @param cmd Argument to vboxcontrol
    */
   // TODO: Add catch block?
-  private async vboxcontrol(cmd): Promise<IChildProcessResult> {
+  private async vboxcontrol(cmd): Promise<ChildProcessResult> {
     return await this.command("VBoxControl " + cmd);
   }
 
@@ -968,7 +977,7 @@ export class Virtualbox {
    */
   // TODO: Write test
   // TODO: Add catch block?
-  private async vboxmanage(cmd): Promise<IChildProcessResult> {
+  private async vboxmanage(cmd): Promise<ChildProcessResult> {
     const result = await this.command(`${this.vboxManageBinary} ${cmd}`);
     return result;
   }

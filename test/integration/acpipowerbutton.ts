@@ -2,6 +2,7 @@
 import assert from "assert";
 import { getLogger } from "log4js";
 import { Virtualbox } from "../../dist/virtualbox";
+
 const logger = getLogger("ACPI Power Button integration test");
 const MACHINE_NAME = "test-machine-1";
 const virtualbox = new Virtualbox();
