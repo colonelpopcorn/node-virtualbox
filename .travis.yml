@@ -12,6 +12,6 @@ node_js:
   - "4"
   - "0.12"
 install:
-  - npm install
+  - npm ci
 script:
   - npm run ci
