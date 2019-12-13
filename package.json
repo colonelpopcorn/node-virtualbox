@@ -61,7 +61,7 @@
     "prebuild": "npm run lint",
     "build": "tsc",
     "document": "typedoc --out docs lib --theme minimal",
-    "lint": "eslint lib/**.ts",
+    "lint": "eslint **/*.ts",
     "pretest": "npm run lint && npm run build",
     "test": "mocha -r ts-node/register test/unit/*.spec.ts",
     "test:integration": "mocha -r ts-node/register test/integration/*.ts"
