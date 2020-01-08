@@ -1,5 +1,5 @@
 "use strict";
-import assert from "assert";
+import { assert } from "chai";
 import { getLogger } from "log4js";
 import { Virtualbox } from "../../dist/virtualbox";
 

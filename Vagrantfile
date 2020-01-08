@@ -1,6 +1,16 @@
 Vagrant.configure("2") do |config|
-  3.times do |id|
-    machine_name = "test-machine-#{id+1}"
+  tests = [
+    'acpisleepbutton',
+    'exec',
+    'extradata-guestproperty',
+    'keyboardputscancode',
+    'modify',
+    'pause-resume-poweroff',
+    'snapshots',
+    'turnOffAndExport'
+  ]
+  tests.each do |machine_id|
+    machine_name = machine_id
     config.vm.define machine_name do |machine|
       config.vm.box = "generic/alpine310"
       machine.vm.hostname = machine_name

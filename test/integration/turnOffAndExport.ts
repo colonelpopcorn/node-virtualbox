@@ -1,29 +1,33 @@
 "use strict";
-import assert from "assert";
+import { assert } from "chai";
 import * as fs from "fs";
 import { getLogger } from "log4js";
 import * as path from "path";
 import { Virtualbox } from "../../dist/virtualbox";
+import { waitNSeconds } from "../testdata";
 
 const logger = getLogger("VM Export Integration Test");
-const MACHINE_NAME = "test-machine-1";
+const MACHINE_NAME = "turnOffAndExport";
 const virtualbox = new Virtualbox();
 const IMAGE_NAME = "test.ovf";
 const FILE_PATH = path.join(process.cwd(), "testexport");
 
-before(async () => {
-  const result = await virtualbox.isRunning(MACHINE_NAME);
-  if (!fs.existsSync(FILE_PATH)) {
-    fs.mkdirSync(FILE_PATH);
-  }
-  assert.ok(
-    !result,
-    "Machine is not running! Please run the vagrantfile in the root of the project!"
-  );
-});
+describe("Virtualbox#turnOffAndExport", async () => {
+  before(async function() {
+    this.timeout(30000);
+    const powerOffRes = await virtualbox.acpipowerbutton(MACHINE_NAME);
+    logger.debug("Power off is: ", powerOffRes);
+    // Wait five seconds for the machine to be off.
+    await waitNSeconds(5);
 
-describe("Virtualbox#vmExport", async () => {
-  it("should be successful", async () => {
+    const isRunning = await virtualbox.isRunning(MACHINE_NAME);
+    if (!fs.existsSync(FILE_PATH)) {
+      fs.mkdirSync(FILE_PATH);
+    }
+    assert.ok(!isRunning, "Couldn't power off the machine for export!");
+  });
+
+  it("should be successful", async function() {
     this.timeout(30000);
     const result = await virtualbox.vmExport(
       MACHINE_NAME,

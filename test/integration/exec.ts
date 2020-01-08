@@ -1,20 +1,21 @@
 "use strict";
-import assert from "assert";
+import { assert } from "chai";
 import { getLogger } from "log4js";
 import { Virtualbox } from "../../dist/virtualbox";
+
 const logger = getLogger("VM Exec Integration Test");
-const MACHINE_NAME = "test-machine-1";
+const MACHINE_NAME = "exec";
 const virtualbox = new Virtualbox();
 
-before(async () => {
-  const result = await virtualbox.isRunning(MACHINE_NAME);
-  assert.ok(
-    result,
-    "Machine is not running! Please run the vagrantfile in the root of the project!"
-  );
-});
-
 describe("Virtualbox#vmExec", () => {
+  before(async () => {
+    const result = await virtualbox.isRunning(MACHINE_NAME);
+    assert.ok(
+      result,
+      "Machine is not running! Please run the vagrantfile in the root of the project!"
+    );
+  });
+
   it("should be successful", async () => {
     const execOpts = await getOpts();
     const result = await virtualbox.vmExec(execOpts);
@@ -27,14 +28,13 @@ async function getOpts(): Promise<any> {
   try {
     const vm = MACHINE_NAME;
     const user = "vagrant";
-    const os = await virtualbox.getOSType(vm);
-    const path = os === "windows" ? "ping.exe" : "ping";
+    const path = "apk";
     return {
       vm,
       user,
       passwd: user /* also user*/,
       path,
-      params: ["https://google.com"]
+      params: ["--help"]
     };
   } catch (ex) {
     logger.error("Failed to get options", ex);

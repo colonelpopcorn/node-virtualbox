@@ -60,3 +60,5 @@ docs
 
 
 testexport
+coverage
+.nyc_output

@@ -8,7 +8,7 @@ import { Logger, configure, getLogger } from "log4js";
  * An interface to capture execution results from the child_process node library.
  */
 export interface ChildProcessResult {
-  error?: ExecException;
+  error?: ExecException | null;
   stdout?: string;
   stderr?: string;
 }
@@ -188,11 +188,7 @@ export class Virtualbox {
       this.Executor = (command: string): Promise<ChildProcessResult> =>
         new Promise(resolve => {
           exec(command, (error, stdout, stderr) => {
-            if (error) {
-              resolve({ error });
-            } else {
-              resolve({ stdout, stderr });
-            }
+            resolve({ error, stdout, stderr });
           });
         });
     } else {

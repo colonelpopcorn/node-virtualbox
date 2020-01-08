@@ -6,7 +6,7 @@ import { getLogger } from "log4js";
 import { Virtualbox } from "../../dist/virtualbox";
 
 const virtualbox = new Virtualbox();
-const MACHINE_NAME = "test-machine-3";
+const MACHINE_NAME = "pause-resume-poweroff";
 const logger = getLogger("Modify integration test");
 
 describe("Virtualbox#pause", () => {
@@ -15,5 +15,14 @@ describe("Virtualbox#pause", () => {
     logger.info(result);
     assert.isOk(result);
     assert.isTrue(result.success);
+    const secondRes = await virtualbox.resume(MACHINE_NAME);
+    logger.info(secondRes);
+    assert.isOk(secondRes);
+    const thirdRes = await virtualbox.poweroff(MACHINE_NAME);
+    logger.info(thirdRes);
+    assert.isOk(thirdRes);
+    const fourthRes = await virtualbox.start(MACHINE_NAME, false);
+    logger.info(fourthRes);
+    assert.isOk(fourthRes);
   });
 });
