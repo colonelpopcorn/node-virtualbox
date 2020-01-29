@@ -85,7 +85,10 @@
       ".tsx"
     ],
     "exclude": [
-      "**/*.d.ts"
+      "**/*.d.ts",
+      "coverage/**/*",
+      "test/**/*",
+      ".eslintrc.js"
     ],
     "reporter": [
       "html"
