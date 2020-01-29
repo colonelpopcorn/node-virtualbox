@@ -8,7 +8,9 @@ const MACHINE_NAME = "keyboardputscancodes";
 
 describe("Virtualbox#keyboardPutScanCodes", () => {
   before(async () => {
-    const isRunning = await virtualbox.isRunning(MACHINE_NAME);
-    assert.ok(isRunning, "Machine is not running!");
+    const result =
+      (await virtualbox.isRunning(MACHINE_NAME)) &&
+      (await virtualbox.machineExists(MACHINE_NAME));
+    assert.ok(result, "Machine is not running!");
   });
 });

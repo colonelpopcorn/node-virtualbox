@@ -20,11 +20,13 @@ describe("Virtualbox#turnOffAndExport", async () => {
     // Wait five seconds for the machine to be off.
     await waitNSeconds(5);
 
-    const isRunning = await virtualbox.isRunning(MACHINE_NAME);
+    const result =
+      (await virtualbox.isRunning(MACHINE_NAME)) &&
+      (await virtualbox.machineExists(MACHINE_NAME));
     if (!fs.existsSync(FILE_PATH)) {
       fs.mkdirSync(FILE_PATH);
     }
-    assert.ok(!isRunning, "Couldn't power off the machine for export!");
+    assert.ok(!result, "Couldn't power off the machine for export!");
   });
 
   it("should be successful", async function() {

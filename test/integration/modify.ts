@@ -16,8 +16,10 @@ describe("VirtualBox#modify", () => {
     // Wait five seconds for the machine to be off.
     await new Promise(resolve => setTimeout(resolve, 5000));
 
-    const isRunning = await virtualbox.isRunning(MACHINE_NAME);
-    assert.ok(!isRunning, "Couldn't power off the machine for export!");
+    const result =
+      (await virtualbox.isRunning(MACHINE_NAME)) &&
+      (await virtualbox.machineExists(MACHINE_NAME));
+    assert.ok(!result, "Couldn't power off the machine for export!");
   });
 
   it("should modify a vm", async () => {

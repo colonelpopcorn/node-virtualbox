@@ -10,6 +10,14 @@ const logger = getLogger("Snapshots Integration Test");
 
 describe("VirtualBox#snapshotTake", () => {
   let machineUuid = "";
+
+  before(async () => {
+    const result =
+      (await virtualbox.isRunning(MACHINE_NAME)) &&
+      (await virtualbox.machineExists(MACHINE_NAME));
+    assert.ok(result, "Machine is not running!");
+  });
+
   it("should take a snapshot", async () => {
     const result = await virtualbox.snapshotTake(
       MACHINE_NAME,

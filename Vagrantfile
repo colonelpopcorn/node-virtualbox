@@ -5,7 +5,7 @@ Vagrant.configure("2") do |config|
     'extradata-guestproperty',
     'keyboardputscancode',
     'modify',
-    'pause-resume-poweroff',
+    'pause-resume-poweroff-reset',
     'snapshots',
     'turnOffAndExport'
   ]

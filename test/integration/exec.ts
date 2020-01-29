@@ -9,7 +9,9 @@ const virtualbox = new Virtualbox();
 
 describe("Virtualbox#vmExec", () => {
   before(async () => {
-    const result = await virtualbox.isRunning(MACHINE_NAME);
+    const result =
+      (await virtualbox.isRunning(MACHINE_NAME)) &&
+      (await virtualbox.machineExists(MACHINE_NAME));
     assert.ok(
       result,
       "Machine is not running! Please run the vagrantfile in the root of the project!"

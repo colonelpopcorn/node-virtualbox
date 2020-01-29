@@ -12,7 +12,9 @@ describe(`
   Virtualbox#setGuestProperty && Virtualbox#getGuestProperty
   `, () => {
   before(async () => {
-    const result = await virtualbox.isRunning(MACHINE_NAME);
+    const result =
+      (await virtualbox.isRunning(MACHINE_NAME)) &&
+      (await virtualbox.machineExists(MACHINE_NAME));
     assert.ok(result, "Machine is not running!");
   });
 
