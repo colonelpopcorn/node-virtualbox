@@ -527,14 +527,13 @@ export class Virtualbox {
       'snapshot "' + vmname + '" list --machinereadable'
     );
 
-    this.logging.debug(result);
-
-    if (result[1] !== "") {
+    if (result.stderr !== "") {
       throw new Error(result[1]);
     }
 
+    const lines = (result.stdout || "").split(require("os").EOL);
+
     const snapshots = new Array<any>();
-    const lines = (result[0] || "").split(require("os").EOL);
     const newObj: any = {};
 
     lines.forEach(line => {
@@ -568,7 +567,7 @@ export class Virtualbox {
     name: string,
     description?,
     live = false
-  ): Promise<string> {
+  ): Promise<VboxApiResponse> {
     this.logging.info('Taking snapshot for VM "%s"', vmname);
 
     let cmd =
@@ -589,7 +588,10 @@ export class Virtualbox {
     const uuid =
       result.stdout?.trim().replace(this.REGEX.UUID_PARSE, (l, u) => u) ||
       "Successfully took a snapshot!";
-    return uuid;
+    return {
+      success: true,
+      responseMessage: uuid
+    };
   }
 
   /**
@@ -599,14 +601,22 @@ export class Virtualbox {
    */
   // TODO: Write test
   // TODO: Add catch block
-  public async snapshotDelete(
-    vmname: string,
-    uuid
-  ): Promise<ChildProcessResult> {
+  public async snapshotDelete(vmname: string, uuid): Promise<VboxApiResponse> {
     this.logging.info('Deleting snapshot "%s" for VM "%s"', uuid, vmname);
     const cmd =
       "snapshot " + JSON.stringify(vmname) + " delete " + JSON.stringify(uuid);
-    return await this.vboxmanage(cmd);
+    const result = await this.vboxmanage(cmd);
+    if (result.error) {
+      return {
+        success: false,
+        responseMessage: "Failed to delete snapshot!"
+      };
+    } else {
+      return {
+        success: true,
+        responseMessage: "Successfully deleted snapshot!"
+      };
+    }
   }
 
   /**
@@ -616,14 +626,22 @@ export class Virtualbox {
    */
   // TODO: Write test
   // TODO: Add catch block
-  public async snapshotRestore(
-    vmname: string,
-    uuid
-  ): Promise<ChildProcessResult> {
+  public async snapshotRestore(vmname: string, uuid): Promise<VboxApiResponse> {
     this.logging.info('Restoring snapshot "%s" for VM "%s"', uuid, vmname);
     const cmd =
       "snapshot " + JSON.stringify(vmname) + " restore " + JSON.stringify(uuid);
-    return await this.vboxmanage(cmd);
+    const result = await this.vboxmanage(cmd);
+    if (result.error) {
+      return {
+        success: false,
+        responseMessage: "Failed to restore snapshot!"
+      };
+    } else {
+      return {
+        success: true,
+        responseMessage: "Successfully restored snapshot!"
+      };
+    }
   }
 
   /**

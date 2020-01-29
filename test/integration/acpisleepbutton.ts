@@ -1,7 +1,7 @@
 "use strict";
+import { Virtualbox } from "../../dist/virtualbox";
 import { assert } from "chai";
 import { getLogger } from "log4js";
-import { Virtualbox } from "../../dist/virtualbox";
 
 const logger = getLogger("ACPI Sleep Button integration test");
 const MACHINE_NAME = "acpisleepbutton";

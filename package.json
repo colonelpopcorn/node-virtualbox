@@ -67,6 +67,17 @@
     "test:integration": "mocha -r ts-node/register test/integration/*.ts"
   },
   "main": "./lib/virtualbox",
+  "mocha": {
+    "files": {
+      "glob": "./test/**/*.ts"
+    },
+    "options": {
+      "compilers": {
+        "ts": "ts-node/register"
+      }
+    },
+    "requires": ["ts-node/register"]
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/Node-Virtualization/node-virtualbox.git"

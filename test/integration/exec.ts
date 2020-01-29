@@ -1,7 +1,7 @@
 "use strict";
+import { Virtualbox } from "../../dist/virtualbox";
 import { assert } from "chai";
 import { getLogger } from "log4js";
-import { Virtualbox } from "../../dist/virtualbox";
 
 const logger = getLogger("VM Exec Integration Test");
 const MACHINE_NAME = "exec";
@@ -32,7 +32,7 @@ async function getOpts(): Promise<any> {
     return {
       vm,
       user,
-      passwd: user /* also user*/,
+      passwd: user /* Also user */,
       path,
       params: ["--help"]
     };

@@ -1,7 +1,7 @@
 "use strict";
+import { Virtualbox } from "../../dist/virtualbox";
 import { assert } from "chai";
 import { getLogger } from "log4js";
-import { Virtualbox } from "../../dist/virtualbox";
 
 const logger = getLogger("Get/Set Extra Data Integration Test");
 const MACHINE_NAME = "extradata-guestproperty";
@@ -17,7 +17,6 @@ describe(`
   });
 
   it("should be successful", async () => {
-    // tslint:disable-next-line: max-line-length
     const setExtraData = await virtualbox.setExtraData({
       name: MACHINE_NAME,
       key: "Bob",
