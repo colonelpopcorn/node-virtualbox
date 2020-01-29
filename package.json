@@ -62,9 +62,8 @@
     "build": "tsc",
     "document": "typedoc --out docs lib --theme minimal",
     "lint": "eslint **/*.ts",
-    "pretest": "npm run lint && npm run build",
-    "test": "mocha -r ts-node/register test/unit/*.spec.ts",
-    "test:integration": "mocha -r ts-node/register test/integration/*.ts"
+    "pretest": "npm run build",
+    "test": "nyc mocha -r ts-node/register test/integration/*.ts"
   },
   "main": "./lib/virtualbox",
   "mocha": {
@@ -76,7 +75,22 @@
         "ts": "ts-node/register"
       }
     },
-    "requires": ["ts-node/register"]
+    "requires": [
+      "ts-node/register"
+    ]
+  },
+  "nyc": {
+    "extension": [
+      ".ts",
+      ".tsx"
+    ],
+    "exclude": [
+      "**/*.d.ts"
+    ],
+    "reporter": [
+      "html"
+    ],
+    "all": true
   },
   "repository": {
     "type": "git",
@@ -97,7 +111,9 @@
     "eslint": "^5.16.0",
     "mocha": "^6.2.2",
     "nodeunit": "^0.11.3",
+    "nyc": "^15.0.0",
     "sinon": "^7.5.0",
+    "source-map-support": "^0.5.16",
     "ts-node": "^8.5.4",
     "typedoc": "^0.15.4",
     "typescript": "^3.7.3"

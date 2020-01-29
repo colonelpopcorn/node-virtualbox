@@ -1,9 +1,9 @@
 "use strict";
-import { assert } from "chai";
 import * as fs from "fs";
-import { getLogger } from "log4js";
 import * as path from "path";
 import { Virtualbox } from "../../dist/virtualbox";
+import { assert } from "chai";
+import { getLogger } from "log4js";
 import { waitNSeconds } from "../testdata";
 
 const logger = getLogger("VM Export Integration Test");
