@@ -6,7 +6,7 @@ import { assert } from "chai";
 import { getLogger } from "log4js";
 
 const virtualbox = new Virtualbox();
-const MACHINE_NAME = "pause-resume-poweroff-reset";
+const MACHINE_NAME = "pause-resume-poweroff-start-reset";
 const logger = getLogger("Modify integration test");
 
 describe("Virtualbox#pause", () => {

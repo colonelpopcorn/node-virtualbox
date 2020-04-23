@@ -1,3 +1,6 @@
+/* eslint-disable prefer-arrow-callback */
+import { Virtualbox } from "../dist/virtualbox";
+
 export const testData = {
   ACPI_POWER_BUTTON: {
     INPUT: "vboxmanage controlvm testvm acpipowerbutton",

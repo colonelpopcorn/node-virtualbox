@@ -2,6 +2,7 @@
 // TODO: Add automatic testing of regex patterns.
 import { ExecException, exec } from "child_process";
 import { Logger, configure, getLogger } from "log4js";
+import { waitNSeconds } from "../test/testdata";
 
 /**
  * IChildProcessResult
@@ -229,7 +230,6 @@ export class Virtualbox {
    * Pause a vm.
    * @param vmname VM name or uuid
    */
-  // TODO: Write test
   // TODO: Add catch block
   public async pause(vmname): Promise<VboxApiResponse> {
     this.logging.info('Pausing VM "%s"', vmname);
@@ -266,7 +266,6 @@ export class Virtualbox {
   /**
    * Get a list of VMs on the current system.
    */
-  // TODO: Write test
   // TODO: Add catch block
   public async list(): Promise<VboxApiResponse> {
     this.logging.info("Listing VMs");
@@ -304,7 +303,6 @@ export class Virtualbox {
    * Reset a vm
    * @param vmname VM name or uuid
    */
-  // TODO: Write test
   // TODO: Add catch block
   public async reset(vmname): Promise<ChildProcessResult> {
     this.logging.info('Resetting VM "%s"', vmname);
@@ -315,7 +313,6 @@ export class Virtualbox {
    * Resume a paused VM
    * @param vmname VM name or uuid
    */
-  // TODO: Write test
   // TODO: Add catch block
   public async resume(vmname): Promise<ChildProcessResult> {
     this.logging.info('Resuming VM "%s"', vmname);
@@ -327,7 +324,6 @@ export class Virtualbox {
    * @param vmname VM name or uuid
    * @param useGui Whether or not to start machine with a GUI
    */
-  // TODO: Write test
   // TODO: Add catch block
   public async start(
     vmname: string,
@@ -358,7 +354,6 @@ export class Virtualbox {
    * Suspend a VM
    * @param vmname VM name or uuid
    */
-  // TODO: Write test
   // TODO: Add catch block
   public async stop(vmname): Promise<ChildProcessResult> {
     this.logging.info('Stopping VM "%s"', vmname);
@@ -366,7 +361,6 @@ export class Virtualbox {
   }
 
   // TODO: Add doc comment
-  // TODO: Write test
   // TODO: Add catch block
   public async savestate(vmname): Promise<ChildProcessResult> {
     this.logging.info('Saving State (alias to stop) VM "%s"', vmname);
@@ -381,7 +375,6 @@ export class Virtualbox {
    * - ova
    * - tar.gz
    */
-  // TODO: Write test
   // TODO: Add catch block
   public async vmExport(
     vmname: string,
@@ -416,7 +409,6 @@ export class Virtualbox {
    * Hard shutdown the VM
    * @param vmname VM name or uuid
    */
-  // TODO: Write test
   // TODO: Add catch block
   public async poweroff(vmname: string): Promise<ChildProcessResult> {
     this.logging.info('Powering off VM "%s"', vmname);
@@ -427,7 +419,6 @@ export class Virtualbox {
    * Send a "power button pressed" signal to the VM
    * @param vmname VM name or uuid
    */
-  // TODO: Write test
   // TODO: Add catch block
   public async acpipowerbutton(vmname: string): Promise<VboxApiResponse> {
     this.logging.info('ACPI power button VM "%s"', vmname);
@@ -453,7 +444,6 @@ export class Virtualbox {
    * Send a "sleep button pressed" signal to the VM
    * @param vmname VM name or uuid
    */
-  // TODO: Write test
   // TODO: Add catch block
   public async acpisleepbutton(vmname: string): Promise<VboxApiResponse> {
     this.logging.info('ACPI sleep button VM "%s"', vmname);
@@ -477,7 +467,6 @@ export class Virtualbox {
    * @param vname VM name or uuid
    * @param properties Virtualbox properties object
    */
-  // TODO: Write test
   // TODO: Add catch block
   public async modify(vname: string, properties): Promise<VboxApiResponse> {
     this.logging.info("Modifying VM %s", vname);
@@ -517,7 +506,6 @@ export class Virtualbox {
    * List snapshots for a VM
    * @param vmname VM name or uuid
    */
-  // TODO: Write test
   // TODO: Add catch block
   public async snapshotList(
     vmname: string
@@ -560,7 +548,6 @@ export class Virtualbox {
    * @param description Description object
    * @param live Should be a live snapshot
    */
-  // TODO: Write test
   // TODO: Add catch block
   public async snapshotTake(
     vmname: string,
